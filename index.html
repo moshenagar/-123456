@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>צדקא — החזר מס בקליק</title>
+  <meta name="description" content="בודקים זכאות להחזר מס לשכירים בתוך דקה — ללא התחייבות. מילוי קצר, בדיקה חינמית ושקופה." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary:#1bb8c4;/*טורקיז*/
+      --primary-600:#13a2ad;
+      --ink:#0f172a;/*כחול-אפור כהה*/
+      --muted:#6b7280;
+      --bg:#f5f7fa;
+      --card:#ffffff;
+      --accent:#7a8a9b;/*אפור*/
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --shadow:0 10px 25px rgba(0,0,0,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Heebo,system-ui,"Segoe UI",Arial; background:linear-gradient(180deg, var(--bg), #eaf6f7 45%, #ffffff 100%); color:var(--ink)}
+    a{color:var(--primary);text-decoration:none}
+    .wrap{max-width:1120px;margin:0 auto;padding:20px}
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:radial-gradient(100% 100% at 30% 30%, #22d3ee, #0891b2);box-shadow:var(--shadow)}
+    .logo svg{filter:drop-shadow(0 2px 6px rgba(0,0,0,.2))}
+    .brand h1{font-size:20px;margin:0;font-weight:800;letter-spacing:.2px}
+    .brand small{display:block;color:var(--muted);font-weight:500;margin-top:-4px}
+    .cta-top{display:flex;gap:10px}
+    .btn{appearance:none;border:0;cursor:pointer;border-radius:14px;padding:12px 18px;font-weight:700;font-size:16px}
+    .btn-primary{background:var(--primary);color:#fff;box-shadow:0 8px 18px rgba(27,184,196,.25)}
+    .btn-primary:hover{background:var(--primary-600)}
+    .btn-ghost{background:transparent;color:var(--primary);border:2px solid var(--primary)}
+
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center;margin-top:22px}
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+    }
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero .headline{padding:30px 28px}
+    .kicker{display:inline-flex;align-items:center;gap:8px;color:#0c4a6e;background:#ecfeff;border:1px solid #cffafe;border-radius:999px;padding:6px 12px;font-weight:700}
+    .headline h2{font-size:36px;line-height:1.15;margin:14px 0 10px}
+    .headline p{font-size:18px;color:#334155;margin:0 0 14px}
+    .bullets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+    @media (max-width:600px){.bullets{grid-template-columns:1fr 1fr}}
+    .bullet{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px}
+    .bullet .dot{width:9px;height:9px;border-radius:50%;background:var(--ok)}
+
+    .form{padding:22px}
+    .form h3{margin:0 0 8px;font-size:20px}
+    .form p{margin:0 0 16px;color:var(--muted)}
+    form{display:grid;gap:10px}
+    .field{display:grid;gap:6px}
+    label{font-weight:700;font-size:14px}
+    input,select,textarea{padding:14px 12px;border:1.5px solid #e5e7eb;border-radius:12px;background:#fff;font-size:16px}
+    input:focus,select:focus,textarea:focus{outline:3px solid #c7f9ff;border-color:#7dd3fc}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:600px){.row{grid-template-columns:1fr}}
+    .consent{font-size:12px;color:#64748b}
+
+    .trust{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .trust .badge{display:flex;gap:8px;align-items:center;background:#ecfeff;border:1px dashed #99f6e4;color:#0f766e;padding:8px 12px;border-radius:999px;font-weight:700}
+
+    .faq{margin:34px 0}
+    details{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px}
+    details+details{margin-top:10px}
+    summary{cursor:pointer;font-weight:700}
+    summary::-webkit-details-marker{display:none}
+
+    footer{margin:40px 0 20px;color:#64748b;font-size:14px}
+    .legal a{color:#475569}
+
+    .grid{display:grid;gap:16px}
+    .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media (max-width:900px){.grid.cols-3{grid-template-columns:1fr}}
+
+    .highlight{background:linear-gradient(90deg, rgba(27,184,196,.15), rgba(27,184,196,0));padding:2px 6px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-label="לוגו צדקא">
+          <!-- מאזניים + חץ מעוגל כסימבול ההחזר -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 3a9 9 0 1 0 9 9" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            <path d="M21 3v6h-6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7 9l3 6M17 9l-3 6M4 15h6M14 15h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>צדקא</h1>
+          <small>החזר מס בקליק</small>
+        </div>
+      </div>
+      <div class="cta-top">
+        <a class="btn btn-ghost" href="#faq">שאלות נפוצות</a>
+        <a class="btn btn-primary" href="#lead">בדיקת זכאות חינם</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="card headline">
+        <span class="kicker">בדיקת זכאות חינמית • ללא התחייבות</span>
+        <h2>
+          מגיע לך <span class="highlight">החזר מס</span>?
+          גלה בתוך דקה וקבל ליווי מלא עד הכסף בחשבון.
+        </h2>
+        <p>
+          לשכירים רבים בישראל מגיעים אלפי שקלים חזרה — על נקודות זיכוי, יישובים מזכים, לימודים, תרומות, החלפת עבודות ועוד. אנחנו ב<span class="highlight">צדקא</span> עושים את זה פשוט, שקוף ומהיר.
+        </p>
+        <div class="bullets">
+          <div class="bullet"><span class="dot"></span><span>תהליך דיגיטלי מלא</span></div>
+          <div class="bullet"><span class="dot"></span><span>תשלום מהצלחות בלבד</span></div>
+          <div class="bullet"><span class="dot"></span><span>ליווי רו"ח מומחה</span></div>
+        </div>
+        <div class="trust">
+          <div class="badge" title="SSL & פרטיות">🔒 פרטיות מלאה</div>
+          <div class="badge" title="מהיר">⚡️ עדכון ב־48 שעות</div>
+          <div class="badge" title="ביקורות">⭐️⭐️⭐️⭐️⭐️ לקוחות מרוצים</div>
+        </div>
+      </div>
+
+      <div class="card form" id="lead">
+        <h3>בדיקת זכאות מיידית</h3>
+        <p>ממלאים פרטים קצרים ומקבלים תשובה ראשונית בווטסאפ / מייל.</p>
+        <form id="leadForm" novalidate>
+          <div class="row">
+            <div class="field">
+              <label for="fullName">שם מלא</label>
+              <input id="fullName" name="fullName" placeholder="משה נגר" required />
+            </div>
+            <div class="field">
+              <label for="phone">טלפון</label>
+              <input id="phone" name="phone" inputmode="tel" placeholder="05x-xxxxxxx" required />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="email">אימייל</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" />
+            </div>
+            <div class="field">
+              <label for="year">שנות מס לבדיקה</label>
+              <select id="year" name="year">
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2019-2021">2019–2021</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="notes">יש משהו שכדאי שנדע?</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="לימודים, יישוב מזכה, החלפת עבודות, תרומות, שירות מילואים וכו׳"></textarea>
+          </div>
+          <label class="consent"><input type="checkbox" id="consent" required /> אני מאשר/ת יצירת קשר לפי מדיניות הפרטיות</label>
+          <button class="btn btn-primary" type="submit">בדקו לי זכאות עכשיו</button>
+          <div id="msg" aria-live="polite" style="min-height:20px"></div>
+          <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+            <a class="btn btn-ghost" id="whatsappBtn" target="_blank" rel="noopener">שליחה בווטסאפ</a>
+            <a class="btn btn-ghost" id="emailBtn">שליחת אימייל</a>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="grid cols-3" style="margin-top:26px">
+      <div class="card" style="padding:18px">
+        <h3 style="margin:0 0 8px">איך זה עובד?</h3>
+        <ol style="margin:0;padding-inline-start:18px;color:#334155">
+          <li>בדיקה ראשונית חינם על בסיס טופס 106 / נתונים שתשלח.</li>
+          <li>הערכת זכאות וטווח החזר צפוי.</li>
+          <li>איסוף מסמכים והגשה לרשות המסים.</li>
+          <li>קבלת הכסף לחשבון + דו"ח מסודר.</li>
+        </ol>
+      </div>
+      <div class="card" style="padding:18px">
+        <h3 style="margin:0 0 8px">למי זה מתאים?</h3>
+        <ul style="margin:0;padding-inline-start:18px;color:#334155;line-height:1.7">
+          <li>מי שהחליף עבודות בשנים האחרונות</li>
+          <li>הורים לילדים (2019–2024)</li>
+          <li>תושבי יישוב מזכה</li>
+          <li>בעלי תואר/הנדסאי</li>
+          <li>מי ששילם תרומות</li>
+          <li>שירות מילואים/דמי אבטלה/דמי לידה</li>
+        </ul>
+      </div>
+      <div class="card" style="padding:18px">
+        <h3 style="margin:0 0 8px">כמה זה עולה?</h3>
+        <p style="margin:0;color:#334155">בדיקה ראשונית <b>חינם</b>. טיפול מלא: <b>עמלה מהחזר בפועל בלבד</b>.
+          אין החזר — אין עלות.
+        </p>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <h3>שאלות נפוצות</h3>
+      <details>
+        <summary>כמה זמן לוקח לקבל החזר?</summary>
+        <div>לאחר הגשה מסודרת, לרוב בין 30–90 יום, תלוי בעומס רשות המסים והבקשות.</div>
+      </details>
+      <details>
+        <summary>איך שומרים על הפרטיות שלי?</summary>
+        <div>עובדים לפי סטנדרט אבטחת מידע, שימוש מאובטח במסמכים וללא שיתוף עם צד שלישי ללא רשות.</div>
+      </details>
+      <details>
+        <summary>על אילו שנים אפשר להגיש?</summary>
+        <div>עד 6 שנים אחורה (נכון לעכשיו), למשל בשנת 2025 ניתן להגיש רטרואקטיבית מ-2019.</div>
+      </details>
+    </section>
+
+    <footer>
+      <div class="legal">© צדקא. כל הזכויות שמורות. • <a href="#">מדיניות פרטיות</a> • <a href="#">תנאי שימוש</a></div>
+    </footer>
+  </div>
+
+  <script>
+    // קישור ווטסאפ עם פרה-פיל מהטופס
+    const f = document.getElementById('leadForm');
+    const msg = document.getElementById('msg');
+    const waBtn = document.getElementById('whatsappBtn');
+    const emailBtn = document.getElementById('emailBtn');
+
+    const WHATSAPP_NUMBER = '972000000000'; // <-- החלף למספר שלך בפורמט בינלאומי ללא +
+    const EMAIL_TO = 'info@tsadka.co.il';   // <-- החלף למייל שלך
+
+    function buildText() {
+      const name = document.getElementById('fullName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const year = document.getElementById('year').value;
+      const notes = document.getElementById('notes').value.trim();
+      return `שלום, שמי ${name}.\nטלפון: ${phone}\nמייל: ${email}\nשנות מס לבדיקה: ${year}\nהערות: ${notes}`;
+    }
+
+    function valid() {
+      if(!document.getElementById('fullName').value || !document.getElementById('phone').value || !document.getElementById('consent').checked){
+        msg.textContent = 'נא למלא שם, טלפון ולאשר יצירת קשר.';
+        msg.style.color = '#b91c1c';
+        return false;
+      }
+      msg.textContent = '';
+      return true;
+    }
+
+    f.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      if(!valid()) return;
+      const text = buildText();
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+      msg.textContent = 'פתחנו שיחה בווטסאפ. אם לא נפתח — בדוק שחסמת פופ-אפים.';
+      msg.style.color = '#065f46';
+      // TODO: הוספת שליחת נתונים ל-API/Google Sheets/CRM
+    });
+
+    waBtn.addEventListener('click', ()=>{
+      if(!valid()) return; window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildText())}`, '_blank');
+    });
+
+    emailBtn.addEventListener('click', ()=>{
+      const subject = encodeURIComponent('בדיקת זכאות להחזר מס — צדקא');
+      const body = encodeURIComponent(buildText());
+      window.location.href = `mailto:${EMAIL_TO}?subject=${subject}&body=${body}`;
+    });
+
+    // אנליטיקות (מקום ל-GTM / Meta Pixel)
+    // window.dataLayer = window.dataLayer || [];
+    // function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-XXXXXXX');
+  </script>
+</body>
+</html>
