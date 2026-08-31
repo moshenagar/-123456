@@ -47,11 +47,40 @@ const CONFIG = {
     payablesData: 150,      // data rows 2..151
     fixedData: 25,          // data rows 2..26
     pricingData: 25,        // data rows 5..29
-    forecastStart: 13,      // first day of the 90-day table
+    forecastStart: 19,      // first day of the 90-day table (after the monthly outlook block)
     forecastDays: 91        // today (+0) .. today+90  => "90+ days ahead"
   },
   terms: ['מיידי', 'שוטף+30', 'שוטף+60', 'שוטף+90'],
   stressOptions: ['תרחיש רגיל', 'תרחיש קיצון (Stress Test)'],
+  expenseTypes: ['קבועה', 'משתנה'],
+  // Reference bank of common Israeli SMB fixed/operating expense categories with a
+  // best-guess default VAT applicability. These are general defaults only - actual
+  // VAT treatment can depend on the supplier's status (עוסק מורשה/פטור) and should
+  // be confirmed with the business's accountant.
+  expenseVatBank: [
+    { name: 'שכר עבודה', vat: 'לא', note: 'משכורות אינן עסקה החייבת במע"מ (יחסי עובד-מעסיק)' },
+    { name: 'ביטוח לאומי מעסיק', vat: 'לא', note: 'תשלום לביטוח לאומי אינו חייב במע"מ' },
+    { name: 'ארנונה עסקית', vat: 'לא', note: 'ארנונה לרשות מקומית פטורה ממע"מ' },
+    { name: 'מים וביוב (רשות מקומית)', vat: 'לא', note: 'פטור ממע"מ, כמו ארנונה' },
+    { name: 'דלק לרכב (לא מגולם בתלוש)', vat: 'כן', note: 'רכישת דלק חייבת במע"מ מלא' },
+    { name: 'טיפולים ותיקוני רכב / מוסך', vat: 'כן', note: 'שירות החייב במע"מ' },
+    { name: 'ביטוח רכב', vat: 'לא', note: 'שירותי ביטוח פטורים ממע"מ' },
+    { name: 'ביטוח עסק / אחריות מקצועית', vat: 'לא', note: 'שירותי ביטוח פטורים ממע"מ' },
+    { name: 'שכירות נכס עסקי', vat: 'כן', note: 'בד"כ חייב אם המשכיר עוסק מורשה - לוודא' },
+    { name: 'חשמל', vat: 'כן', note: 'חייב במע"מ מלא' },
+    { name: 'טלפון ואינטרנט', vat: 'כן', note: 'חייב במע"מ מלא' },
+    { name: 'הנהלת חשבונות / רואה חשבון', vat: 'כן', note: 'שירות מקצועי החייב במע"מ' },
+    { name: 'עורך דין', vat: 'כן', note: 'שירות מקצועי החייב במע"מ' },
+    { name: 'דמי ניהול / ועד בית / קניון', vat: 'כן', note: 'חייב במע"מ' },
+    { name: 'מנוי תוכנה / SaaS', vat: 'כן', note: 'חייב במע"מ אם מספק ישראלי' },
+    { name: 'אחסון ושרתים (Hosting)', vat: 'כן', note: 'חייב במע"מ אם מספק ישראלי' },
+    { name: 'שיווק ופרסום', vat: 'כן', note: 'חייב במע"מ' },
+    { name: 'דמי חבר בלשכה / ארגון מקצועי', vat: 'לא', note: 'תלוי בסטטוס הארגון - לרוב פטור, יש לוודא' },
+    { name: 'עמלות בנק', vat: 'לא', note: 'שירותים פיננסיים פטורים ממע"מ' },
+    { name: 'ריבית הלוואות', vat: 'לא', note: 'שירותים פיננסיים פטורים ממע"מ' },
+    { name: 'ליסינג תפעולי (רכב/ציוד)', vat: 'כן', note: 'חייב במע"מ' },
+    { name: 'אחר (הקלדה חופשית)', vat: '', note: 'קטגוריה מותאמת אישית - יש לקבוע ידנית האם כוללת מע"מ' }
+  ],
   colors: {
     headerBg: '#1F3864',
     headerFont: '#FFFFFF',
@@ -520,10 +549,12 @@ function buildFixedExpensesTab(ss) {
 
   const headers = [
     'קטגוריית הוצאה',
-    'יום חיוב בחודש',
-    'סכום בסיס חודשי (₪)',
+    'סוג (קבועה / משתנה)',
+    'יום חיוב בחודש (לקבועות - חוזר כל חודש)',
+    'תאריך מדויק (למשתנות / תשלום חד-פעמי)',
+    'סכום בסיס (₪)',
     'מכפיל דינמי / כרית הגנה (למשל 1.25 לעונתיות)',
-    'סה"כ תזרים צפוי חודשי (₪)',
+    'סה"כ תזרים צפוי (₪)',
     'כולל מע"מ?'
   ];
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
@@ -534,37 +565,127 @@ function buildFixedExpensesTab(ss) {
   const last = 1 + CONFIG.rows.fixedData;
   const n = CONFIG.rows.fixedData;
 
-  markInput(sheet.getRange(first, 1, n, 4));
-  markInput(sheet.getRange(first, 6, n, 1));
+  const categoryNames = CONFIG.expenseVatBank.map(item => item.name);
+  markInput(sheet.getRange(first, 1, n, 6));
+  markInput(sheet.getRange(first, 8, n, 1));
 
-  sheet.getRange(first, 2, n, 1).setDataValidation(numberRangeValidation(1, 31));
-  sheet.getRange(first, 6, n, 1).setDataValidation(listValidation(['כן', 'לא']));
-  fillDefaultColumn(sheet, first, last, 4, 1);
-  fillDefaultColumn(sheet, first, last, 6, 'כן');
+  sheet.getRange(first, 1, n, 1).setDataValidation(listValidation(categoryNames));
+  sheet.getRange(first, 2, n, 1).setDataValidation(listValidation(CONFIG.expenseTypes));
+  sheet.getRange(first, 3, n, 1).setDataValidation(numberRangeValidation(1, 31));
+  sheet.getRange(first, 4, n, 1).setDataValidation(dateValidation());
+  sheet.getRange(first, 8, n, 1).setDataValidation(listValidation(['כן', 'לא']));
+  fillDefaultColumn(sheet, first, last, 2, 'קבועה');
+  fillDefaultColumn(sheet, first, last, 6, 1);
+  fillDefaultColumn(sheet, first, last, 8, 'כן');
 
-  const outflowFormulas = colFormulas(first, last, r => `=IF($C${r}="","",$C${r}*$D${r})`);
-  sheet.getRange(first, 5, n, 1).setFormulas(outflowFormulas);
-  markFormula(sheet.getRange(first, 5, n, 1));
-  protectFormula(sheet.getRange(first, 5, n, 1), 'תזרים חודשי - שדה מחושב');
+  const outflowFormulas = colFormulas(first, last, r => `=IF($E${r}="","",$E${r}*$F${r})`);
+  sheet.getRange(first, 7, n, 1).setFormulas(outflowFormulas);
+  markFormula(sheet.getRange(first, 7, n, 1));
+  protectFormula(sheet.getRange(first, 7, n, 1), 'תזרים - שדה מחושב');
 
-  setCurrency(sheet.getRange(first, 3, n, 2));
+  setCurrency(sheet.getRange(first, 5, n, 1));
+  setDateFmt(sheet.getRange(first, 4, n, 1));
 
   const totalRow = last + 2;
-  sheet.getRange(totalRow, 1).setValue('סה"כ הוצאות קבועות חודשיות').setFontWeight('bold');
-  sheet.getRange(totalRow, 5).setFormula(`=SUM(E${first}:E${last})`);
-  sheet.getRange(totalRow, 1, 1, 6).setBackground(CONFIG.colors.totalBg).setFontWeight('bold');
-  setCurrency(sheet.getRange(totalRow, 5, 1, 1));
-  protectFormula(sheet.getRange(totalRow, 5, 1, 1), 'סה"כ - שדה מחושב');
-  sheet.getRange('A' + totalRow).setNote('התא "E' + totalRow + '" הוא סך התקורה החודשית הקבועה, ומוזן אוטומטית לטאב 6.');
+  sheet.getRange(totalRow, 1).setValue('סה"כ (קבועות + משתנות בטבלה)').setFontWeight('bold');
+  sheet.getRange(totalRow, 7).setFormula(`=SUM(G${first}:G${last})`);
+  sheet.getRange(totalRow, 1, 1, 8).setBackground(CONFIG.colors.totalBg).setFontWeight('bold');
+  setCurrency(sheet.getRange(totalRow, 7, 1, 1));
+  protectFormula(sheet.getRange(totalRow, 7, 1, 1), 'סה"כ - שדה מחושב');
+  sheet
+    .getRange('A' + totalRow)
+    .setNote(
+      'תקורה חודשית קבועה בלבד (ללא משתנות) מוזנת אוטומטית לטאב 6 מתוך שורות "קבועה" בלבד. הוצאות "משתנות" נספרות רק בחודש התאריך המדויק שלהן בתחזית טאב 7 - לתשלומים מפוצלים, הוסיפו שורה נפרדת לכל תשלום עם תאריך משלו.'
+    );
 
-  sheet.setColumnWidths(1, 1, 200);
-  sheet.setColumnWidths(2, 1, 130);
-  sheet.setColumnWidths(3, 1, 160);
-  sheet.setColumnWidths(4, 1, 260);
-  sheet.setColumnWidths(5, 1, 190);
-  sheet.setColumnWidths(6, 1, 120);
+  sheet.setColumnWidths(1, 1, 210);
+  sheet.setColumnWidths(2, 1, 140);
+  sheet.setColumnWidths(3, 1, 190);
+  sheet.setColumnWidths(4, 1, 190);
+  sheet.setColumnWidths(5, 1, 140);
+  sheet.setColumnWidths(6, 1, 220);
+  sheet.setColumnWidths(7, 1, 170);
+  sheet.setColumnWidths(8, 1, 110);
 
   sheet.getRange(first, 1, n, headers.length).setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
+
+  buildExpenseVatBankReference(sheet);
+}
+
+/**
+ * Writes the visible, editable reference table of common expense categories with
+ * their default VAT applicability, used both as the source list for the category
+ * dropdown (column A) and, via onEdit(), to auto-fill the "כולל מע"מ?" column.
+ */
+function buildExpenseVatBankReference(sheet) {
+  const startCol = 10; // column J, leaving column I as a spacer
+  const bank = CONFIG.expenseVatBank;
+
+  const titleRange = sheet.getRange(1, startCol, 1, 3);
+  titleRange.merge();
+  titleRange
+    .setValue('בנק קטגוריות הוצאה - ברירת מחדל למע"מ (לבחירה מהירה בעמודה "קטגוריית הוצאה")')
+    .setBackground(CONFIG.colors.sectionBg)
+    .setFontColor('#FFFFFF')
+    .setFontWeight('bold')
+    .setHorizontalAlignment('center')
+    .setWrap(true);
+
+  const bankHeaders = ['קטגוריה', 'מע"מ כברירת מחדל', 'הערה'];
+  sheet.getRange(2, startCol, 1, 3).setValues([bankHeaders]);
+  sheet
+    .getRange(2, startCol, 1, 3)
+    .setBackground(CONFIG.colors.headerBg)
+    .setFontColor('#FFFFFF')
+    .setFontWeight('bold')
+    .setHorizontalAlignment('center');
+
+  const rows = bank.map(item => [item.name, item.vat, item.note]);
+  sheet.getRange(3, startCol, rows.length, 3).setValues(rows);
+  sheet.getRange(3, startCol, rows.length, 3).setBackground('#F8F8F8').setWrap(true);
+  sheet.getRange(3, startCol + 1, rows.length, 1).setHorizontalAlignment('center');
+
+  const noteRow = 3 + rows.length + 1;
+  const noteRange = sheet.getRange(noteRow, startCol, 1, 3);
+  noteRange.merge();
+  noteRange
+    .setValue('הערה: ברירות המחדל הן הנחיה כללית בלבד - יש לוודא מול רואה החשבון בהתאם לסטטוס הספק (עוסק מורשה/פטור).')
+    .setFontStyle('italic')
+    .setFontSize(9)
+    .setWrap(true);
+
+  sheet.setColumnWidths(startCol, 1, 220);
+  sheet.setColumnWidths(startCol + 1, 1, 140);
+  sheet.setColumnWidths(startCol + 2, 1, 340);
+}
+
+/**
+ * Simple onEdit trigger: when the expense category (column A) on 4_Fixed_Expenses
+ * is set to a value matching the VAT bank, auto-fill the "כולל מע"מ?" column (H)
+ * with the bank's default. The user can still manually overwrite H afterward -
+ * this only re-fires when column A itself is edited again.
+ */
+function onEdit(e) {
+  try {
+    if (!e || !e.range) return;
+    const sheet = e.range.getSheet();
+    if (sheet.getName() !== CONFIG.sheets.fixed) return;
+    const row = e.range.getRow();
+    const col = e.range.getColumn();
+    const first = 2;
+    const last = 1 + CONFIG.rows.fixedData;
+    if (row < first || row > last || col !== 1) return;
+
+    const category = String(e.range.getValue()).trim();
+    if (!category) return;
+
+    const match = CONFIG.expenseVatBank.find(item => item.name === category);
+    if (match && match.vat) {
+      sheet.getRange(row, 8).setValue(match.vat);
+    }
+  } catch (err) {
+    // Never block manual editing due to an auto-fill failure.
+  }
 }
 
 // ============================================================================
@@ -622,7 +743,7 @@ function buildTaxEngineTab(ss) {
     );
   sheet
     .getRange('B12')
-    .setFormula(`=SUMIF('${CONFIG.sheets.fixed}'!$F$2:$F$${fixedLast},"כן",'${CONFIG.sheets.fixed}'!$E$2:$E$${fixedLast})/(1+$B$4)*$B$4`);
+    .setFormula(`=SUMIF('${CONFIG.sheets.fixed}'!$H$2:$H$${fixedLast},"כן",'${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast})/(1+$B$4)*$B$4`);
   sheet.getRange('B13').setFormula('=MAX(0,B10-B11-B12)');
   sheet
     .getRange('B14')
@@ -665,9 +786,11 @@ function buildPricingTab(ss) {
   sheet.setTabColor('#0B5394');
 
   styleTitleRow(sheet, 'A1:R1', 'תמחור ונקודת איזון - כלכלת יחידה (Unit Economics)');
-  sheet.getRange('A2').setValue('סה"כ תקורה חודשית קבועה (מטאב 4)');
-  const fixedTotalRow = 1 + CONFIG.rows.fixedData + 2;
-  sheet.getRange('B2').setFormula(`='${CONFIG.sheets.fixed}'!E${fixedTotalRow}`);
+  sheet.getRange('A2').setValue('סה"כ תקורה חודשית קבועה (מטאב 4, שורות "קבועה" בלבד)');
+  const fixedLastRow = 1 + CONFIG.rows.fixedData;
+  sheet
+    .getRange('B2')
+    .setFormula(`=SUMIF('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLastRow},"קבועה",'${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLastRow})`);
   setCurrency(sheet.getRange('B2'));
   sheet.getRange('B2').setFontWeight('bold').setFontSize(12);
   markFormula(sheet.getRange('A2:B2'));
@@ -817,6 +940,10 @@ function buildDashboardTab(ss) {
   protectFormula(sheet.getRange('A6:H6'), 'כרטיסי מדדים - שדות מחושבים');
   protectFormula(sheet.getRange('A9:H9'), 'כרטיסי מדדים - שדות מחושבים');
 
+  const fixedLast = 1 + CONFIG.rows.fixedData;
+
+  buildMonthlyOutlook(sheet, forecastStart, forecastEnd, fixedLast);
+
   // ---- Daily rolling 90-day forecast table ----
   const headers = [
     'תאריך',
@@ -824,18 +951,18 @@ function buildDashboardTab(ss) {
     'יתרת פתיחה (₪)',
     'תקבולים צפויים (₪)',
     'תשלומים לספקים (₪)',
-    'הוצאות קבועות (₪)',
+    'הוצאות קבועות ומשתנות (₪)',
     'תשלום מס - 15 לחודש (₪)',
     'יתרת סגירה (₪)',
     'מצב'
   ];
-  sheet.getRange(12, 1, 1, headers.length).setValues([headers]);
-  styleHeaderRow(sheet, 12, headers.length);
-  sheet.setFrozenRows(12);
+  const dailyHeaderRow = forecastStart - 1;
+  sheet.getRange(dailyHeaderRow, 1, 1, headers.length).setValues([headers]);
+  styleHeaderRow(sheet, dailyHeaderRow, headers.length);
+  sheet.setFrozenRows(dailyHeaderRow);
 
   const receivablesLast = 1 + CONFIG.rows.receivablesData;
   const payablesLast = 1 + CONFIG.rows.payablesData;
-  const fixedLast = 1 + CONFIG.rows.fixedData;
 
   const aFormulas = [];
   const bFormulas = [];
@@ -858,7 +985,7 @@ function buildDashboardTab(ss) {
       `=SUMIFS('${CONFIG.sheets.payables}'!$I$2:$I$${payablesLast},'${CONFIG.sheets.payables}'!$F$2:$F$${payablesLast},$A${r},'${CONFIG.sheets.payables}'!$J$2:$J$${payablesLast},"ממתין")*$E$3`
     ]);
     fFormulas.push([
-      `=SUMIF('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLast},DAY($A${r}),'${CONFIG.sheets.fixed}'!$E$2:$E$${fixedLast})*$E$3`
+      `=(SUMIFS('${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast},'${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLast},"קבועה",'${CONFIG.sheets.fixed}'!$C$2:$C$${fixedLast},DAY($A${r}))+SUMIFS('${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast},'${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLast},"משתנה",'${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLast},$A${r}))*$E$3`
     ]);
     gFormulas.push([`=IF(DAY($A${r})=15,'${CONFIG.sheets.tax}'!$B$19,0)`]);
     hFormulas.push([`=$C${r}+$D${r}-$E${r}-$F${r}-$G${r}`]);
@@ -898,6 +1025,68 @@ function buildDashboardTab(ss) {
   sheet.setColumnWidths(9, 1, 110);
 
   sheet.getRange(forecastStart, 1, numRows, headers.length).setBorder(true, true, true, true, true, true, '#DDDDDD', SpreadsheetApp.BorderStyle.SOLID);
+}
+
+/**
+ * Monthly outlook block: this month + 3 months ahead. Fixed-expense totals are
+ * constant across months (that's what "fixed" means) so the seasonal multiplier
+ * column on 4_Fixed_Expenses is the lever to tune them; variable-expense totals
+ * are pulled per calendar month from their exact dated rows on that tab, so
+ * installment plans naturally land in the month you dated each installment for.
+ */
+function buildMonthlyOutlook(sheet, forecastStart, forecastEnd, fixedLast) {
+  const titleRow = 11;
+  const headerRow = 12;
+  const dataFirstRow = 13;
+
+  styleSectionRow(sheet, `A${titleRow}:G${titleRow}`, 'תחזית חודשית מסכמת - החודש ועד 3 חודשים קדימה');
+
+  const monthlyHeaders = [
+    'חודש',
+    'תאריך יעד (סוף חודש)',
+    'הוצאות קבועות צפויות (₪)',
+    'הוצאות משתנות צפויות (₪)',
+    'יתרת סגירה חזויה (₪)',
+    'שינוי מיתרה נוכחית (₪)',
+    'מצב'
+  ];
+  sheet.getRange(headerRow, 1, 1, monthlyHeaders.length).setValues([monthlyHeaders]);
+  styleHeaderRow(sheet, headerRow, monthlyHeaders.length);
+
+  const monthLabels = ['סוף החודש הנוכחי', 'בעוד חודש', 'בעוד חודשיים', 'בעוד 3 חודשים'];
+  monthLabels.forEach((label, i) => {
+    const row = dataFirstRow + i;
+    sheet.getRange(row, 1).setValue(label);
+    sheet.getRange(row, 2).setFormula(`=MIN(EOMONTH(TODAY(),${i}),$A$${forecastEnd})`);
+    sheet
+      .getRange(row, 3)
+      .setFormula(
+        `=SUMIF('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLast},"קבועה",'${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast})`
+      );
+    sheet
+      .getRange(row, 4)
+      .setFormula(
+        `=SUMPRODUCT(('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLast}="משתנה")*(YEAR('${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLast})=YEAR(EOMONTH(TODAY(),${i})))*(MONTH('${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLast})=MONTH(EOMONTH(TODAY(),${i})))*'${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast})`
+      );
+    sheet
+      .getRange(row, 5)
+      .setFormula(
+        `=INDEX($H$${forecastStart}:$H$${forecastEnd},MATCH(B${row},$A$${forecastStart}:$A$${forecastEnd},0))`
+      );
+    sheet.getRange(row, 6).setFormula(`=E${row}-$A$6`);
+    sheet
+      .getRange(row, 7)
+      .setFormula(`=IF(E${row}<0,"🔴 קריטי",IF(E${row}<$A$6*0.15,"🟡 אזהרה","🟢 תקין"))`);
+  });
+
+  setDateFmt(sheet.getRange(dataFirstRow, 2, monthLabels.length, 1));
+  setCurrency(sheet.getRange(dataFirstRow, 3, monthLabels.length, 4));
+  markFormula(sheet.getRange(dataFirstRow, 1, monthLabels.length, 7));
+  protectFormula(sheet.getRange(dataFirstRow, 2, monthLabels.length, 6), 'תחזית חודשית - שדות מחושבים');
+
+  sheet
+    .getRange(dataFirstRow, 1, monthLabels.length, monthlyHeaders.length)
+    .setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
 }
 
 function buildKpiCard(sheet, labelA1, valueA1, labelText, valueFormula, type) {
