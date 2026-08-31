@@ -344,6 +344,26 @@ function getBanksLayout() {
 }
 
 /**
+ * Single source of truth for 6_Pricing_BreakEven's row layout: title, the
+ * monthly overhead pull, the company-wide break-even summary block, then the
+ * per-product table. Other tabs (7_Master_Forecast_Dashboard) that need this
+ * sheet's totals should call this instead of hardcoding row numbers.
+ */
+function getPricingLayout() {
+  const titleRow = 1;
+  const overheadRow = 2;
+  const summaryTitleRow = 4;
+  const revenueRow = 5;
+  const marginRow = 6;
+  const safetyRow = 7;
+  const statusRow = 8;
+  const headerRow = 10;
+  const first = headerRow + 1;
+  const last = first + CONFIG.rows.pricingData - 1;
+  return { titleRow, overheadRow, summaryTitleRow, revenueRow, marginRow, safetyRow, statusRow, headerRow, first, last };
+}
+
+/**
  * Builds a SUMPRODUCT formula fragment (no leading "=") that totals
  * 4_Fixed_Expenses rows occurring on/in a given target date or month.
  * Each row is defined by: C=first payment date, D=frequency in months,
@@ -358,23 +378,25 @@ function getBanksLayout() {
  * 90-day forecast); dayLevel=false matches at month granularity only (used
  * for the monthly outlook, where any occurrence within the month counts).
  */
-function buildExpenseOccurrenceFormula(fixedLast, targetExpr, dayLevel, typeFilter) {
+function buildExpenseOccurrenceFormula(fixedLast, targetExpr, dayLevel, typeFilter, vatFilter) {
   const sheetName = CONFIG.sheets.fixed;
   const C = `'${sheetName}'!$C$2:$C$${fixedLast}`;
   const D = `'${sheetName}'!$D$2:$D$${fixedLast}`;
   const E = `'${sheetName}'!$E$2:$E$${fixedLast}`;
   const H = `'${sheetName}'!$H$2:$H$${fixedLast}`;
   const B = `'${sheetName}'!$B$2:$B$${fixedLast}`;
+  const I = `'${sheetName}'!$I$2:$I$${fixedLast}`;
 
   const monthsSince = `((YEAR(${targetExpr})-YEAR(${C}))*12+(MONTH(${targetExpr})-MONTH(${C})))`;
   const freqSafe = `MAX(${D},1)`;
   const countSafe = `IF(${E}=0,999999,${E})`;
   const typeTerm = typeFilter ? `(${B}="${typeFilter}")*` : '';
+  const vatTerm = vatFilter ? `(${I}="${vatFilter}")*` : '';
   const onOrAfter = dayLevel ? `(${targetExpr}>=${C})*` : `(${monthsSince}>=0)*`;
   const dayMatch = dayLevel ? `(DAY(${targetExpr})=DAY(${C}))*` : '';
 
   return (
-    `SUMPRODUCT(${typeTerm}(${C}<>"")*${onOrAfter}${dayMatch}` +
+    `SUMPRODUCT(${typeTerm}${vatTerm}(${C}<>"")*${onOrAfter}${dayMatch}` +
     `(MOD(${monthsSince},${freqSafe})=0)*` +
     `(${monthsSince}/${freqSafe}<${countSafe})*${H})`
   );
@@ -922,7 +944,7 @@ function buildTaxEngineTab(ss) {
     );
   sheet
     .getRange('B12')
-    .setFormula(`=SUMIF('${CONFIG.sheets.fixed}'!$I$2:$I$${fixedLast},"כן",'${CONFIG.sheets.fixed}'!$H$2:$H$${fixedLast})/(1+$B$4)*$B$4`);
+    .setFormula(`=${buildExpenseOccurrenceFormula(fixedLast, 'TODAY()', false, null, 'כן')}/(1+$B$4)*$B$4`);
   sheet.getRange('B13').setFormula('=MAX(0,B10-B11-B12)');
   sheet
     .getRange('B14')
@@ -963,19 +985,91 @@ function buildTaxEngineTab(ss) {
 function buildPricingTab(ss) {
   const sheet = getOrCreateSheet(ss, CONFIG.sheets.pricing);
   sheet.setTabColor('#0B5394');
+  const P = getPricingLayout();
 
-  styleTitleRow(sheet, 'A1:R1', 'תמחור ונקודת איזון - כלכלת יחידה (Unit Economics)');
-  sheet.getRange('A2').setValue('סה"כ תקורה חודשית קבועה (שווה-ערך חודשי, שורות "קבועה" בלבד מטאב 4)');
+  styleTitleRow(sheet, `A${P.titleRow}:R${P.titleRow}`, 'תמחור ונקודת איזון - כלכלת יחידה (Unit Economics)');
+  sheet.getRange(`A${P.overheadRow}`).setValue('סה"כ תקורה חודשית קבועה (שווה-ערך חודשי, שורות "קבועה" בלבד מטאב 4)');
   const fixedLastRow = 1 + CONFIG.rows.fixedData;
   sheet
-    .getRange('B2')
+    .getRange(`B${P.overheadRow}`)
     .setFormula(
       `=SUMPRODUCT(('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLastRow}="קבועה")*'${CONFIG.sheets.fixed}'!$H$2:$H$${fixedLastRow}/MAX('${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLastRow},1))`
     );
-  setCurrency(sheet.getRange('B2'));
-  sheet.getRange('B2').setFontWeight('bold').setFontSize(12);
-  markFormula(sheet.getRange('A2:B2'));
-  protectFormula(sheet.getRange('B2'), 'תקורה חודשית - שדה מחושב מטאב 4');
+  setCurrency(sheet.getRange(`B${P.overheadRow}`));
+  sheet.getRange(`B${P.overheadRow}`).setFontWeight('bold').setFontSize(12);
+  markFormula(sheet.getRange(`A${P.overheadRow}:B${P.overheadRow}`));
+  protectFormula(sheet.getRange(`B${P.overheadRow}`), 'תקורה חודשית - שדה מחושב מטאב 4');
+
+  // ---- Company-wide break-even: how much revenue justifies keeping the business open ----
+  styleSectionRow(sheet, `A${P.summaryTitleRow}:D${P.summaryTitleRow}`, 'נקודת איזון כוללת לעסק (כל המוצרים יחד)');
+
+  sheet.getRange(`A${P.revenueRow}`).setValue('סה"כ הכנסות חודשיות צפויות (₪)');
+  sheet.getRange(`B${P.revenueRow}`).setFormula(`=SUMPRODUCT($C$${P.first}:$C$${P.last},$L$${P.first}:$L$${P.last})`);
+  sheet.getRange(`C${P.revenueRow}`).setValue('סה"כ תרומה חודשית צפויה (₪)');
+  sheet.getRange(`D${P.revenueRow}`).setFormula(`=SUMPRODUCT($J$${P.first}:$J$${P.last},$L$${P.first}:$L$${P.last})`);
+
+  sheet.getRange(`A${P.marginRow}`).setValue('אחוז תרומה משוקלל (%)');
+  sheet.getRange(`B${P.marginRow}`).setFormula(`=IFERROR(D${P.revenueRow}/B${P.revenueRow},0)`);
+  sheet.getRange(`C${P.marginRow}`).setValue('נקודת איזון - מחזור חודשי לעסק (₪)');
+  sheet
+    .getRange(`D${P.marginRow}`)
+    .setFormula(`=IF(B${P.marginRow}>0,$B$${P.overheadRow}/B${P.marginRow},"אין נקודת איזון (תרומה שלילית/אפס)")`);
+
+  sheet.getRange(`A${P.safetyRow}`).setValue('מרווח ביטחון (₪)');
+  sheet
+    .getRange(`B${P.safetyRow}`)
+    .setFormula(`=IF(ISNUMBER(D${P.marginRow}),B${P.revenueRow}-D${P.marginRow},"—")`);
+  sheet.getRange(`C${P.safetyRow}`).setValue('מרווח ביטחון (%)');
+  sheet
+    .getRange(`D${P.safetyRow}`)
+    .setFormula(`=IF(AND(ISNUMBER(B${P.safetyRow}),B${P.revenueRow}>0),B${P.safetyRow}/B${P.revenueRow},"—")`);
+
+  sheet.getRange(`A${P.statusRow}`).setValue('סטטוס העסק');
+  sheet
+    .getRange(`B${P.statusRow}:D${P.statusRow}`)
+    .merge()
+    .setFormula(
+      `=IF(NOT(ISNUMBER(D${P.marginRow})),"🔴 אין תרומה חיובית - בדקו מחירי מכירה מול עלויות",` +
+        `IF(D${P.safetyRow}>0.2,"🟢 מעל נקודת האיזון בבטחה (מרווח ביטחון "&TEXT(D${P.safetyRow},"0%")&")",` +
+        `IF(D${P.safetyRow}>=0,"🟡 קרוב לנקודת האיזון (מרווח ביטחון "&TEXT(D${P.safetyRow},"0%")&")",` +
+        `"🔴 מתחת לנקודת האיזון (חסר "&TEXT(-B${P.safetyRow},"#,##0")&" ₪ בחודש)")))`
+    )
+    .setHorizontalAlignment('center');
+
+  setCurrency(sheet.getRange(`B${P.revenueRow}`));
+  setCurrency(sheet.getRange(`D${P.revenueRow}`));
+  setPercent(sheet.getRange(`B${P.marginRow}`));
+  setCurrency(sheet.getRange(`D${P.marginRow}`));
+  setCurrency(sheet.getRange(`B${P.safetyRow}`));
+  setPercent(sheet.getRange(`D${P.safetyRow}`));
+
+  sheet.getRange(`A${P.revenueRow}:D${P.safetyRow}`).setFontWeight('bold');
+  sheet.getRange(`B${P.statusRow}:D${P.statusRow}`).setFontWeight('bold').setFontSize(12);
+  markFormula(sheet.getRange(`B${P.revenueRow}`));
+  markFormula(sheet.getRange(`D${P.revenueRow}`));
+  markFormula(sheet.getRange(`B${P.marginRow}`));
+  markFormula(sheet.getRange(`D${P.marginRow}`));
+  markFormula(sheet.getRange(`B${P.safetyRow}`));
+  markFormula(sheet.getRange(`D${P.safetyRow}`));
+  markFormula(sheet.getRange(`B${P.statusRow}:D${P.statusRow}`));
+  protectFormula(sheet.getRange(`B${P.revenueRow}`), 'נקודת איזון כוללת - שדה מחושב');
+  protectFormula(sheet.getRange(`D${P.revenueRow}`), 'נקודת איזון כוללת - שדה מחושב');
+  protectFormula(sheet.getRange(`B${P.marginRow}`), 'נקודת איזון כוללת - שדה מחושב');
+  protectFormula(sheet.getRange(`D${P.marginRow}`), 'נקודת איזון כוללת - שדה מחושב');
+  protectFormula(sheet.getRange(`B${P.safetyRow}`), 'נקודת איזון כוללת - שדה מחושב');
+  protectFormula(sheet.getRange(`D${P.safetyRow}`), 'נקודת איזון כוללת - שדה מחושב');
+  protectFormula(sheet.getRange(`B${P.statusRow}:D${P.statusRow}`), 'נקודת איזון כוללת - שדה מחושב');
+
+  sheet
+    .getRange(`A${P.revenueRow}:D${P.statusRow}`)
+    .setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
+  sheet
+    .getRange(`A${P.statusRow}`)
+    .setNote(
+      'נקודת האיזון הכוללת מחושבת מהתקורה החודשית (B' +
+        P.overheadRow +
+        ') חלקי אחוז התרומה המשוקלל של כל המוצרים ביחד, לפי הכמויות הצפויות שהוזנו בטבלה למטה. שנו כמויות/מחירים בטבלה כדי לראות איך זה משפיע.'
+    );
 
   const headers = [
     'שם מוצר / שירות',
@@ -997,12 +1091,12 @@ function buildPricingTab(ss) {
     'אחוז רווח נטו ליחידה',
     'סטטוס'
   ];
-  sheet.getRange(4, 1, 1, headers.length).setValues([headers]);
-  styleHeaderRow(sheet, 4, headers.length);
-  sheet.setFrozenRows(4);
+  sheet.getRange(P.headerRow, 1, 1, headers.length).setValues([headers]);
+  styleHeaderRow(sheet, P.headerRow, headers.length);
+  sheet.setFrozenRows(P.headerRow);
 
-  const first = 5;
-  const last = 4 + CONFIG.rows.pricingData;
+  const first = P.first;
+  const last = P.last;
   const n = CONFIG.rows.pricingData;
 
   markInput(sheet.getRange(first, 1, n, 3));
@@ -1113,8 +1207,8 @@ function buildDashboardTab(ss) {
     sheet,
     'G8:H8',
     'G9:H9',
-    'סטטוס נקודת איזון - החודש',
-    `=IF(SUMPRODUCT('${CONFIG.sheets.pricing}'!$L$5:$L$${4 + CONFIG.rows.pricingData},IFERROR('${CONFIG.sheets.pricing}'!$N$5:$N$${4 + CONFIG.rows.pricingData},0))>=0,"✅ מעל נקודת האיזון","⚠️ מתחת לנקודת האיזון")`,
+    'סטטוס נקודת איזון - העסק כולו',
+    `='${CONFIG.sheets.pricing}'!B${getPricingLayout().statusRow}`,
     'text'
   );
 
