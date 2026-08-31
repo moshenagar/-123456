@@ -42,7 +42,9 @@ const CONFIG = {
     dashboard: '7_Master_Forecast_Dashboard'
   },
   rows: {
-    banksData: 12,          // data rows 2..13
+    banksData: 8,            // bank accounts - real liquid cash
+    creditCardsData: 10,     // credit cards - liabilities, need frequent updating
+    loansData: 8,            // loans - liabilities
     receivablesData: 150,   // data rows 2..151
     payablesData: 150,      // data rows 2..151
     fixedData: 25,          // data rows 2..26
@@ -297,6 +299,51 @@ function colFormulas(startRow, endRow, template) {
 }
 
 /**
+ * Single source of truth for 1_Banks_Credit's row layout: three stacked
+ * sections (Banks / Credit Cards / Loans), each with a title, header, data
+ * block and total row. Every other tab that needs to reference a total on
+ * this sheet (e.g. "the real cash balance") should call this instead of
+ * recomputing row offsets inline, to avoid drift bugs across tabs.
+ */
+function getBanksLayout() {
+  const banksTitleRow = 1;
+  const banksHeaderRow = 2;
+  const banksFirst = 3;
+  const banksLast = banksFirst + CONFIG.rows.banksData - 1;
+  const banksTotalRow = banksLast + 1;
+
+  const cardsTitleRow = banksTotalRow + 2;
+  const cardsHeaderRow = cardsTitleRow + 1;
+  const cardsFirst = cardsHeaderRow + 1;
+  const cardsLast = cardsFirst + CONFIG.rows.creditCardsData - 1;
+  const cardsTotalRow = cardsLast + 1;
+
+  const loansTitleRow = cardsTotalRow + 2;
+  const loansHeaderRow = loansTitleRow + 1;
+  const loansFirst = loansHeaderRow + 1;
+  const loansLast = loansFirst + CONFIG.rows.loansData - 1;
+  const loansTotalRow = loansLast + 1;
+
+  return {
+    banksTitleRow,
+    banksHeaderRow,
+    banksFirst,
+    banksLast,
+    banksTotalRow,
+    cardsTitleRow,
+    cardsHeaderRow,
+    cardsFirst,
+    cardsLast,
+    cardsTotalRow,
+    loansTitleRow,
+    loansHeaderRow,
+    loansFirst,
+    loansLast,
+    loansTotalRow
+  };
+}
+
+/**
  * Builds a SUMPRODUCT formula fragment (no leading "=") that totals
  * 4_Fixed_Expenses rows occurring on/in a given target date or month.
  * Each row is defined by: C=first payment date, D=frequency in months,
@@ -349,58 +396,130 @@ function fillDefaultColumn(sheet, startRow, endRow, col, value) {
 function buildBanksCreditTab(ss) {
   const sheet = getOrCreateSheet(ss, CONFIG.sheets.banks);
   sheet.setTabColor('#1F3864');
+  const L = getBanksLayout();
 
-  const headers = [
-    'שם חשבון / כרטיס אשראי',
-    'יתרה נוכחית (₪)',
-    'מסגרת אשראי מאושרת (₪)',
-    'יום חיוב חודשי (לכרטיסים)',
+  // ---- Section 1: Banks (real liquid cash - the "exit point" of every asset) ----
+  styleTitleRow(sheet, `A${L.banksTitleRow}:E${L.banksTitleRow}`, 'בנקים - הנכסים הנזילים שלי');
+  const bankHeaders = [
+    'שם חשבון בנק',
+    'יתרת עו"ש נוכחית (₪)',
+    'מסגרת משיכת יתר בעו"ש (₪)',
     'אחוז כרית ביטחון לחירום',
     'נזילות זמינה מותאמת סיכון (₪)'
   ];
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  styleHeaderRow(sheet, 1, headers.length);
-  sheet.setFrozenRows(1);
+  sheet.getRange(L.banksHeaderRow, 1, 1, bankHeaders.length).setValues([bankHeaders]);
+  styleHeaderRow(sheet, L.banksHeaderRow, bankHeaders.length);
+  sheet.setFrozenRows(L.banksHeaderRow);
 
-  const first = 2;
-  const last = 1 + CONFIG.rows.banksData;
+  markInput(sheet.getRange(L.banksFirst, 1, CONFIG.rows.banksData, 4));
+  fillDefaultColumn(sheet, L.banksFirst, L.banksLast, 4, 0.05);
 
-  markInput(sheet.getRange(first, 1, CONFIG.rows.banksData, 5));
-  fillDefaultColumn(sheet, first, last, 5, 0.05);
+  const liquidityFormulas = colFormulas(L.banksFirst, L.banksLast, r => `=IF($B${r}="","",$B${r}+$C${r}*(1-$D${r}))`);
+  sheet.getRange(L.banksFirst, 5, liquidityFormulas.length, 1).setFormulas(liquidityFormulas);
+  markFormula(sheet.getRange(L.banksFirst, 5, CONFIG.rows.banksData, 1));
+  protectFormula(sheet.getRange(L.banksFirst, 5, CONFIG.rows.banksData, 1), 'נזילות מותאמת - שדה מחושב');
 
-  const liquidityFormulas = colFormulas(first, last, r => `=IF($B${r}="","",$B${r}+$C${r}*(1-$E${r}))`);
-  sheet.getRange(first, 6, liquidityFormulas.length, 1).setFormulas(liquidityFormulas);
-  markFormula(sheet.getRange(first, 6, CONFIG.rows.banksData, 1));
+  setCurrency(sheet.getRange(L.banksFirst, 2, CONFIG.rows.banksData, 2));
+  setCurrency(sheet.getRange(L.banksFirst, 5, CONFIG.rows.banksData, 1));
+  setPercent(sheet.getRange(L.banksFirst, 4, CONFIG.rows.banksData, 1));
 
-  setCurrency(sheet.getRange(first, 2, CONFIG.rows.banksData, 2));
-  setCurrency(sheet.getRange(first, 6, CONFIG.rows.banksData, 1));
-  setPercent(sheet.getRange(first, 5, CONFIG.rows.banksData, 1));
-  sheet.getRange(first, 4, CONFIG.rows.banksData, 1).setDataValidation(numberRangeValidation(1, 31));
+  sheet.getRange(L.banksTotalRow, 1).setValue('סה"כ בנקים').setFontWeight('bold');
+  sheet.getRange(L.banksTotalRow, 2).setFormula(`=SUM(B${L.banksFirst}:B${L.banksLast})`);
+  sheet.getRange(L.banksTotalRow, 3).setFormula(`=SUM(C${L.banksFirst}:C${L.banksLast})`);
+  sheet.getRange(L.banksTotalRow, 5).setFormula(`=SUM(E${L.banksFirst}:E${L.banksLast})`);
+  sheet.getRange(L.banksTotalRow, 1, 1, 5).setBackground(CONFIG.colors.totalBg).setFontWeight('bold');
+  setCurrency(sheet.getRange(L.banksTotalRow, 2, 1, 1));
+  setCurrency(sheet.getRange(L.banksTotalRow, 3, 1, 1));
+  setCurrency(sheet.getRange(L.banksTotalRow, 5, 1, 1));
+  protectFormula(sheet.getRange(L.banksTotalRow, 2, 1, 2), 'סה"כ - שדה מחושב');
+  protectFormula(sheet.getRange(L.banksTotalRow, 5, 1, 1), 'סה"כ - שדה מחושב');
+  sheet
+    .getRange('A' + L.banksTotalRow)
+    .setNote(
+      'יתרת הבנק הכוללת ("B' + L.banksTotalRow + '") היא הבסיס היחיד ליתרת הבנק בכל המערכת (טאב 5 וטאב 7) - כרטיסי אשראי והלוואות אינם נכללים כאן, הם ניהול נפרד למטה.'
+    );
 
-  const totalRow = last + 2;
-  sheet.getRange(totalRow, 1).setValue('סה"כ').setFontWeight('bold');
-  sheet.getRange(totalRow, 2).setFormula(`=SUM(B${first}:B${last})`);
-  sheet.getRange(totalRow, 3).setFormula(`=SUM(C${first}:C${last})`);
-  sheet.getRange(totalRow, 6).setFormula(`=SUM(F${first}:F${last})`);
-  const totalRange = sheet.getRange(totalRow, 1, 1, 6);
-  totalRange.setBackground(CONFIG.colors.totalBg).setFontWeight('bold');
-  setCurrency(sheet.getRange(totalRow, 2, 1, 1));
-  setCurrency(sheet.getRange(totalRow, 3, 1, 1));
-  setCurrency(sheet.getRange(totalRow, 6, 1, 1));
-  protectFormula(sheet.getRange(totalRow, 2, 1, 3), 'סה"כ - שדה מחושב');
-  protectFormula(sheet.getRange(totalRow, 6, 1, 1), 'סה"כ - שדה מחושב');
-  protectFormula(sheet.getRange(first, 6, CONFIG.rows.banksData, 1), 'נזילות מותאמת - שדה מחושב');
+  sheet.getRange(L.banksFirst, 1, CONFIG.rows.banksData, bankHeaders.length).setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
+
+  // ---- Section 2: Credit Cards (liabilities - need frequent manual updating) ----
+  styleTitleRow(sheet, `A${L.cardsTitleRow}:E${L.cardsTitleRow}`, 'כרטיסי אשראי - יש לעדכן באופן שוטף');
+  const cardHeaders = [
+    'שם כרטיס אשראי',
+    'יתרת חיוב נוכחית לחיוב הבא (₪)',
+    'מסגרת אשראי מאושרת (₪)',
+    'יום חיוב חודשי',
+    'חשבון בנק מקושר לחיוב'
+  ];
+  sheet.getRange(L.cardsHeaderRow, 1, 1, cardHeaders.length).setValues([cardHeaders]);
+  styleHeaderRow(sheet, L.cardsHeaderRow, cardHeaders.length);
+
+  markInput(sheet.getRange(L.cardsFirst, 1, CONFIG.rows.creditCardsData, 4));
+  markInput(sheet.getRange(L.cardsFirst, 5, CONFIG.rows.creditCardsData, 1));
+  sheet.getRange(L.cardsFirst, 4, CONFIG.rows.creditCardsData, 1).setDataValidation(numberRangeValidation(1, 31));
+  sheet
+    .getRange(L.cardsFirst, 5, CONFIG.rows.creditCardsData, 1)
+    .setDataValidation(
+      SpreadsheetApp.newDataValidation()
+        .requireValueInRange(sheet.getRange(L.banksFirst, 1, CONFIG.rows.banksData, 1), true)
+        .setAllowInvalid(true)
+        .build()
+    );
+
+  setCurrency(sheet.getRange(L.cardsFirst, 2, CONFIG.rows.creditCardsData, 2));
+
+  sheet.getRange(L.cardsTotalRow, 1).setValue('סה"כ כרטיסי אשראי').setFontWeight('bold');
+  sheet.getRange(L.cardsTotalRow, 2).setFormula(`=SUM(B${L.cardsFirst}:B${L.cardsLast})`);
+  sheet.getRange(L.cardsTotalRow, 3).setFormula(`=SUM(C${L.cardsFirst}:C${L.cardsLast})`);
+  sheet.getRange(L.cardsTotalRow, 1, 1, 5).setBackground(CONFIG.colors.totalBg).setFontWeight('bold');
+  setCurrency(sheet.getRange(L.cardsTotalRow, 2, 1, 2));
+  protectFormula(sheet.getRange(L.cardsTotalRow, 2, 1, 2), 'סה"כ - שדה מחושב');
+  sheet
+    .getRange('A' + L.cardsTotalRow)
+    .setNote(
+      'כדי שהחיוב החודשי ייכנס אוטומטית לתחזית התזרים בטאב 7, הוסיפו שורה מתאימה בטאב 4 (הוצאות קבועות) עם יום/תאריך החיוב, תדירות=1 והסכום.'
+    );
+
+  sheet.getRange(L.cardsFirst, 1, CONFIG.rows.creditCardsData, cardHeaders.length).setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
+
+  // ---- Section 3: Loans (liabilities) ----
+  styleTitleRow(sheet, `A${L.loansTitleRow}:G${L.loansTitleRow}`, 'הלוואות');
+  const loanHeaders = [
+    'שם הלוואה / גורם מלווה',
+    'סכום מקורי (₪)',
+    'יתרה לתשלום (₪)',
+    'תשלום חודשי (₪)',
+    'יום חיוב חודשי',
+    'מס\' תשלומים שנותרו',
+    'ריבית שנתית %'
+  ];
+  sheet.getRange(L.loansHeaderRow, 1, 1, loanHeaders.length).setValues([loanHeaders]);
+  styleHeaderRow(sheet, L.loansHeaderRow, loanHeaders.length);
+
+  markInput(sheet.getRange(L.loansFirst, 1, CONFIG.rows.loansData, 7));
+  sheet.getRange(L.loansFirst, 5, CONFIG.rows.loansData, 1).setDataValidation(numberRangeValidation(1, 31));
+
+  setCurrency(sheet.getRange(L.loansFirst, 2, CONFIG.rows.loansData, 3));
+  setPercent(sheet.getRange(L.loansFirst, 7, CONFIG.rows.loansData, 1));
+
+  sheet.getRange(L.loansTotalRow, 1).setValue('סה"כ הלוואות').setFontWeight('bold');
+  sheet.getRange(L.loansTotalRow, 3).setFormula(`=SUM(C${L.loansFirst}:C${L.loansLast})`);
+  sheet.getRange(L.loansTotalRow, 4).setFormula(`=SUM(D${L.loansFirst}:D${L.loansLast})`);
+  sheet.getRange(L.loansTotalRow, 1, 1, 7).setBackground(CONFIG.colors.totalBg).setFontWeight('bold');
+  setCurrency(sheet.getRange(L.loansTotalRow, 3, 1, 2));
+  protectFormula(sheet.getRange(L.loansTotalRow, 3, 1, 2), 'סה"כ - שדה מחושב');
+  sheet
+    .getRange('A' + L.loansTotalRow)
+    .setNote(
+      'כדי שההחזר החודשי ייכנס אוטומטית לתחזית התזרים בטאב 7, הוסיפו שורה מתאימה בטאב 4 (הוצאות קבועות) עם תדירות=1 ומס\' תשלומים = "מס\' תשלומים שנותרו" כאן.'
+    );
+
+  sheet.getRange(L.loansFirst, 1, CONFIG.rows.loansData, loanHeaders.length).setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
 
   sheet.setColumnWidths(1, 1, 220);
-  sheet.setColumnWidths(2, 3, 150);
-  sheet.setColumnWidths(4, 1, 130);
-  sheet.setColumnWidths(5, 2, 160);
-
-  sheet.getRange(first, 1, CONFIG.rows.banksData, headers.length).setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
-
-  // Named "total balance" reference used across the whole system:
-  // '1_Banks_Credit'!B{totalRow}
-  sheet.getRange('A' + totalRow).setNote('שורת סיכום - יתרת הבנק הכוללת ("' + `B${totalRow}` + '") משמשת כבסיס לתחזית בטאב 7 ולטאב 5.');
+  sheet.setColumnWidths(2, 3, 170);
+  sheet.setColumnWidths(5, 1, 150);
+  sheet.setColumnWidths(6, 1, 170);
+  sheet.setColumnWidths(7, 1, 130);
 }
 
 // ============================================================================
@@ -823,7 +942,7 @@ function buildTaxEngineTab(ss) {
 
   styleSectionRow(sheet, 'A21:C21', 'סיכום - יתרה חופשית ממיסים');
   sheet.getRange('A22').setValue('סה"כ יתרת בנק נוכחית');
-  sheet.getRange('B22').setFormula(`='${CONFIG.sheets.banks}'!B${1 + CONFIG.rows.banksData + 2}`);
+  sheet.getRange('B22').setFormula(`='${CONFIG.sheets.banks}'!B${getBanksLayout().banksTotalRow}`);
   sheet.getRange('A23').setValue('יתרה חופשית ממיסים (True Free Cash Balance)');
   sheet.getRange('B23').setFormula('=B22-B19');
   setCurrency(sheet.getRange('B22:B23'));
@@ -967,7 +1086,7 @@ function buildDashboardTab(ss) {
   markFormula(sheet.getRange('G3'));
   protectFormula(sheet.getRange('E3:G3'), 'מכפילי תרחיש קיצון - שדות מחושבים');
 
-  const banksTotalRow = 1 + CONFIG.rows.banksData + 2;
+  const banksTotalRow = getBanksLayout().banksTotalRow;
   const forecastStart = CONFIG.rows.forecastStart;
   const forecastEnd = forecastStart + CONFIG.rows.forecastDays - 1;
   const row15 = forecastStart + 15;
