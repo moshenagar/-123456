@@ -875,7 +875,7 @@ function buildDashboardTab(ss) {
   markFormula(sheet.getRange(forecastStart, 1, numRows, 9));
   protectFormula(sheet.getRange(forecastStart, 1, numRows, 9), 'תחזית תזרים יומית - שדות מחושבים');
 
-  applyEndingBalanceConditionalFormatting(sheet, `H${forecastStart}:H${forecastEnd}`, `'${CONFIG.sheets.banks}'!$B$${banksTotalRow}`);
+  applyEndingBalanceConditionalFormatting(sheet, `H${forecastStart}:H${forecastEnd}`, '$A$6');
 
   sheet.setColumnWidths(1, 1, 110);
   sheet.setColumnWidths(2, 1, 60);
