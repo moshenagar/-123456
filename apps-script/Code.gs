@@ -252,6 +252,14 @@ function numberRangeValidation(min, max) {
   return SpreadsheetApp.newDataValidation().requireNumberBetween(min, max).setAllowInvalid(true).build();
 }
 
+function dateValidation() {
+  return SpreadsheetApp.newDataValidation()
+    .requireDate()
+    .setAllowInvalid(false)
+    .setHelpText('יש להזין תאריך תקין (למשל 31/08/2026), לא טקסט חופשי.')
+    .build();
+}
+
 /** Builds a column of row-specific formulas as a 2D array ready for setFormulas(). */
 function colFormulas(startRow, endRow, template) {
   const out = [];
@@ -362,6 +370,7 @@ function buildReceivablesTab(ss) {
   markInput(sheet.getRange(first, 7, n, 2));
   markInput(sheet.getRange(first, 12, n, 1));
 
+  sheet.getRange(first, 4, n, 1).setDataValidation(dateValidation());
   sheet.getRange(first, 5, n, 1).setDataValidation(listValidation(CONFIG.terms));
   sheet.getRange(first, 12, n, 1).setDataValidation(listValidation(['ממתין', 'התקבל', 'נסגר']));
   fillDefaultColumn(sheet, first, last, 7, 15);
@@ -454,6 +463,7 @@ function buildPayablesTab(ss) {
   markInput(sheet.getRange(first, 7, n, 2));
   markInput(sheet.getRange(first, 10, n, 1));
 
+  sheet.getRange(first, 4, n, 1).setDataValidation(dateValidation());
   sheet.getRange(first, 5, n, 1).setDataValidation(listValidation(CONFIG.terms));
   sheet.getRange(first, 7, n, 1).setDataValidation(listValidation(['צ׳ק', 'העברה בנקאית', 'הוראת קבע', 'אשראי', 'מזומן']));
   sheet.getRange(first, 10, n, 1).setDataValidation(listValidation(['ממתין', 'נפרע']));
