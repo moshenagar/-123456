@@ -296,6 +296,43 @@ function colFormulas(startRow, endRow, template) {
   return out;
 }
 
+/**
+ * Builds a SUMPRODUCT formula fragment (no leading "=") that totals
+ * 4_Fixed_Expenses rows occurring on/in a given target date or month.
+ * Each row is defined by: C=first payment date, D=frequency in months,
+ * E=number of payments (blank/0 = unlimited), H=final outflow amount.
+ * A row "occurs" at the target when the target is on/after the first date,
+ * the number of months since the first date is an exact multiple of the
+ * frequency, and (for a finite payment count) that occurrence index hasn't
+ * been exhausted yet. This single model covers monthly/bi-monthly/quarterly
+ * recurring costs and multi-installment one-off expenses from one row each.
+ *
+ * dayLevel=true also requires the day-of-month to match (used for the daily
+ * 90-day forecast); dayLevel=false matches at month granularity only (used
+ * for the monthly outlook, where any occurrence within the month counts).
+ */
+function buildExpenseOccurrenceFormula(fixedLast, targetExpr, dayLevel, typeFilter) {
+  const sheetName = CONFIG.sheets.fixed;
+  const C = `'${sheetName}'!$C$2:$C$${fixedLast}`;
+  const D = `'${sheetName}'!$D$2:$D$${fixedLast}`;
+  const E = `'${sheetName}'!$E$2:$E$${fixedLast}`;
+  const H = `'${sheetName}'!$H$2:$H$${fixedLast}`;
+  const B = `'${sheetName}'!$B$2:$B$${fixedLast}`;
+
+  const monthsSince = `((YEAR(${targetExpr})-YEAR(${C}))*12+(MONTH(${targetExpr})-MONTH(${C})))`;
+  const freqSafe = `MAX(${D},1)`;
+  const countSafe = `IF(${E}=0,999999,${E})`;
+  const typeTerm = typeFilter ? `(${B}="${typeFilter}")*` : '';
+  const onOrAfter = dayLevel ? `(${targetExpr}>=${C})*` : `(${monthsSince}>=0)*`;
+  const dayMatch = dayLevel ? `(DAY(${targetExpr})=DAY(${C}))*` : '';
+
+  return (
+    `SUMPRODUCT(${typeTerm}(${C}<>"")*${onOrAfter}${dayMatch}` +
+    `(MOD(${monthsSince},${freqSafe})=0)*` +
+    `(${monthsSince}/${freqSafe}<${countSafe})*${H})`
+  );
+}
+
 function fillDefault(sheet, a1Range, value) {
   sheet.getRange(a1Range).setValue(value);
 }
@@ -550,11 +587,12 @@ function buildFixedExpensesTab(ss) {
   const headers = [
     'קטגוריית הוצאה',
     'סוג (קבועה / משתנה)',
-    'יום חיוב בחודש (לקבועות - חוזר כל חודש)',
-    'תאריך מדויק (למשתנות / תשלום חד-פעמי)',
-    'סכום בסיס (₪)',
+    'תאריך תשלום ראשון',
+    'תדירות (כל כמה חודשים)',
+    'מס\' תשלומים (ריק = ללא הגבלה, חוזר תמיד)',
+    'סכום בסיס לתשלום (₪)',
     'מכפיל דינמי / כרית הגנה (למשל 1.25 לעונתיות)',
-    'סה"כ תזרים צפוי (₪)',
+    'סה"כ תזרים צפוי לתשלום (₪)',
     'כולל מע"מ?'
   ];
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
@@ -566,46 +604,49 @@ function buildFixedExpensesTab(ss) {
   const n = CONFIG.rows.fixedData;
 
   const categoryNames = CONFIG.expenseVatBank.map(item => item.name);
-  markInput(sheet.getRange(first, 1, n, 6));
-  markInput(sheet.getRange(first, 8, n, 1));
+  markInput(sheet.getRange(first, 1, n, 7));
+  markInput(sheet.getRange(first, 9, n, 1));
 
   sheet.getRange(first, 1, n, 1).setDataValidation(listValidation(categoryNames));
   sheet.getRange(first, 2, n, 1).setDataValidation(listValidation(CONFIG.expenseTypes));
-  sheet.getRange(first, 3, n, 1).setDataValidation(numberRangeValidation(1, 31));
-  sheet.getRange(first, 4, n, 1).setDataValidation(dateValidation());
-  sheet.getRange(first, 8, n, 1).setDataValidation(listValidation(['כן', 'לא']));
+  sheet.getRange(first, 3, n, 1).setDataValidation(dateValidation());
+  sheet.getRange(first, 4, n, 1).setDataValidation(numberRangeValidation(1, 36));
+  sheet.getRange(first, 5, n, 1).setDataValidation(numberRangeValidation(0, 360));
+  sheet.getRange(first, 9, n, 1).setDataValidation(listValidation(['כן', 'לא']));
   fillDefaultColumn(sheet, first, last, 2, 'קבועה');
-  fillDefaultColumn(sheet, first, last, 6, 1);
-  fillDefaultColumn(sheet, first, last, 8, 'כן');
+  fillDefaultColumn(sheet, first, last, 4, 1);
+  fillDefaultColumn(sheet, first, last, 7, 1);
+  fillDefaultColumn(sheet, first, last, 9, 'כן');
 
-  const outflowFormulas = colFormulas(first, last, r => `=IF($E${r}="","",$E${r}*$F${r})`);
-  sheet.getRange(first, 7, n, 1).setFormulas(outflowFormulas);
-  markFormula(sheet.getRange(first, 7, n, 1));
-  protectFormula(sheet.getRange(first, 7, n, 1), 'תזרים - שדה מחושב');
+  const outflowFormulas = colFormulas(first, last, r => `=IF($F${r}="","",$F${r}*$G${r})`);
+  sheet.getRange(first, 8, n, 1).setFormulas(outflowFormulas);
+  markFormula(sheet.getRange(first, 8, n, 1));
+  protectFormula(sheet.getRange(first, 8, n, 1), 'תזרים - שדה מחושב');
 
-  setCurrency(sheet.getRange(first, 5, n, 1));
-  setDateFmt(sheet.getRange(first, 4, n, 1));
+  setCurrency(sheet.getRange(first, 6, n, 1));
+  setDateFmt(sheet.getRange(first, 3, n, 1));
 
   const totalRow = last + 2;
-  sheet.getRange(totalRow, 1).setValue('סה"כ (קבועות + משתנות בטבלה)').setFontWeight('bold');
-  sheet.getRange(totalRow, 7).setFormula(`=SUM(G${first}:G${last})`);
-  sheet.getRange(totalRow, 1, 1, 8).setBackground(CONFIG.colors.totalBg).setFontWeight('bold');
-  setCurrency(sheet.getRange(totalRow, 7, 1, 1));
-  protectFormula(sheet.getRange(totalRow, 7, 1, 1), 'סה"כ - שדה מחושב');
+  sheet.getRange(totalRow, 1).setValue('סה"כ (כל תשלום בטבלה, ללא התחשבות בתדירות)').setFontWeight('bold');
+  sheet.getRange(totalRow, 8).setFormula(`=SUM(H${first}:H${last})`);
+  sheet.getRange(totalRow, 1, 1, 9).setBackground(CONFIG.colors.totalBg).setFontWeight('bold');
+  setCurrency(sheet.getRange(totalRow, 8, 1, 1));
+  protectFormula(sheet.getRange(totalRow, 8, 1, 1), 'סה"כ - שדה מחושב');
   sheet
     .getRange('A' + totalRow)
     .setNote(
-      'תקורה חודשית קבועה בלבד (ללא משתנות) מוזנת אוטומטית לטאב 6 מתוך שורות "קבועה" בלבד. הוצאות "משתנות" נספרות רק בחודש התאריך המדויק שלהן בתחזית טאב 7 - לתשלומים מפוצלים, הוסיפו שורה נפרדת לכל תשלום עם תאריך משלו.'
+      'שורה אחת מכסה גם הוצאות דו-חודשיות/רבעוניות (למשל ארנונה/חשמל) וגם תשלומים מפוצלים: קבעו "תאריך תשלום ראשון", "תדירות" (1=כל חודש, 2=דו-חודשי וכו\') ו"מס\' תשלומים" (השאירו ריק בקבועות שחוזרות תמיד; מלאו מספר סופי במשתנות/תשלומים). כל תשלום ייכנס אוטומטית לחודש הנכון בטאב 7 ובתחזית החודשית - אין צורך בשורה נפרדת לכל תשלום. תקורת "קבועה" בטאב 6 מחושבת כשווה-ערך חודשי (סכום חלקי תדירות).'
     );
 
   sheet.setColumnWidths(1, 1, 210);
   sheet.setColumnWidths(2, 1, 140);
-  sheet.setColumnWidths(3, 1, 190);
-  sheet.setColumnWidths(4, 1, 190);
-  sheet.setColumnWidths(5, 1, 140);
-  sheet.setColumnWidths(6, 1, 220);
-  sheet.setColumnWidths(7, 1, 170);
-  sheet.setColumnWidths(8, 1, 110);
+  sheet.setColumnWidths(3, 1, 150);
+  sheet.setColumnWidths(4, 1, 160);
+  sheet.setColumnWidths(5, 1, 220);
+  sheet.setColumnWidths(6, 1, 160);
+  sheet.setColumnWidths(7, 1, 220);
+  sheet.setColumnWidths(8, 1, 190);
+  sheet.setColumnWidths(9, 1, 110);
 
   sheet.getRange(first, 1, n, headers.length).setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
 
@@ -618,7 +659,7 @@ function buildFixedExpensesTab(ss) {
  * dropdown (column A) and, via onEdit(), to auto-fill the "כולל מע"מ?" column.
  */
 function buildExpenseVatBankReference(sheet) {
-  const startCol = 10; // column J, leaving column I as a spacer
+  const startCol = 11; // column K, leaving column J as a spacer
   const bank = CONFIG.expenseVatBank;
 
   const titleRange = sheet.getRange(1, startCol, 1, 3);
@@ -660,10 +701,13 @@ function buildExpenseVatBankReference(sheet) {
 }
 
 /**
- * Simple onEdit trigger: when the expense category (column A) on 4_Fixed_Expenses
- * is set to a value matching the VAT bank, auto-fill the "כולל מע"מ?" column (H)
- * with the bank's default. The user can still manually overwrite H afterward -
- * this only re-fires when column A itself is edited again.
+ * Simple onEdit trigger on 4_Fixed_Expenses:
+ *  - Column A (category) edited -> auto-fill "כולל מע"מ?" (column I) from the VAT bank.
+ *  - Column B (type) edited -> auto-fill sensible defaults for "תדירות" (D) and
+ *    "מס' תשלומים" (E) ONLY when those cells are still blank, so it never clobbers
+ *    a value the user already set. קבועה defaults to monthly/unlimited; משתנה
+ *    defaults to a single one-time payment.
+ * All auto-fills stay plain values the user can freely overwrite afterward.
  */
 function onEdit(e) {
   try {
@@ -674,14 +718,30 @@ function onEdit(e) {
     const col = e.range.getColumn();
     const first = 2;
     const last = 1 + CONFIG.rows.fixedData;
-    if (row < first || row > last || col !== 1) return;
+    if (row < first || row > last) return;
 
-    const category = String(e.range.getValue()).trim();
-    if (!category) return;
+    if (col === 1) {
+      const category = String(e.range.getValue()).trim();
+      if (!category) return;
+      const match = CONFIG.expenseVatBank.find(item => item.name === category);
+      if (match && match.vat) {
+        sheet.getRange(row, 9).setValue(match.vat);
+      }
+      return;
+    }
 
-    const match = CONFIG.expenseVatBank.find(item => item.name === category);
-    if (match && match.vat) {
-      sheet.getRange(row, 8).setValue(match.vat);
+    if (col === 2) {
+      const type = String(e.range.getValue()).trim();
+      const freqCell = sheet.getRange(row, 4);
+      const countCell = sheet.getRange(row, 5);
+      if (type === 'קבועה') {
+        if (freqCell.getValue() === '') freqCell.setValue(1);
+        // Count stays blank = unlimited/ongoing.
+      } else if (type === 'משתנה') {
+        if (freqCell.getValue() === '') freqCell.setValue(1);
+        if (countCell.getValue() === '') countCell.setValue(1);
+      }
+      return;
     }
   } catch (err) {
     // Never block manual editing due to an auto-fill failure.
@@ -743,7 +803,7 @@ function buildTaxEngineTab(ss) {
     );
   sheet
     .getRange('B12')
-    .setFormula(`=SUMIF('${CONFIG.sheets.fixed}'!$H$2:$H$${fixedLast},"כן",'${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast})/(1+$B$4)*$B$4`);
+    .setFormula(`=SUMIF('${CONFIG.sheets.fixed}'!$I$2:$I$${fixedLast},"כן",'${CONFIG.sheets.fixed}'!$H$2:$H$${fixedLast})/(1+$B$4)*$B$4`);
   sheet.getRange('B13').setFormula('=MAX(0,B10-B11-B12)');
   sheet
     .getRange('B14')
@@ -786,11 +846,13 @@ function buildPricingTab(ss) {
   sheet.setTabColor('#0B5394');
 
   styleTitleRow(sheet, 'A1:R1', 'תמחור ונקודת איזון - כלכלת יחידה (Unit Economics)');
-  sheet.getRange('A2').setValue('סה"כ תקורה חודשית קבועה (מטאב 4, שורות "קבועה" בלבד)');
+  sheet.getRange('A2').setValue('סה"כ תקורה חודשית קבועה (שווה-ערך חודשי, שורות "קבועה" בלבד מטאב 4)');
   const fixedLastRow = 1 + CONFIG.rows.fixedData;
   sheet
     .getRange('B2')
-    .setFormula(`=SUMIF('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLastRow},"קבועה",'${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLastRow})`);
+    .setFormula(
+      `=SUMPRODUCT(('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLastRow}="קבועה")*'${CONFIG.sheets.fixed}'!$H$2:$H$${fixedLastRow}/MAX('${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLastRow},1))`
+    );
   setCurrency(sheet.getRange('B2'));
   sheet.getRange('B2').setFontWeight('bold').setFontSize(12);
   markFormula(sheet.getRange('A2:B2'));
@@ -984,9 +1046,7 @@ function buildDashboardTab(ss) {
     eFormulas.push([
       `=SUMIFS('${CONFIG.sheets.payables}'!$I$2:$I$${payablesLast},'${CONFIG.sheets.payables}'!$F$2:$F$${payablesLast},$A${r},'${CONFIG.sheets.payables}'!$J$2:$J$${payablesLast},"ממתין")*$E$3`
     ]);
-    fFormulas.push([
-      `=(SUMIFS('${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast},'${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLast},"קבועה",'${CONFIG.sheets.fixed}'!$C$2:$C$${fixedLast},DAY($A${r}))+SUMIFS('${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast},'${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLast},"משתנה",'${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLast},$A${r}))*$E$3`
-    ]);
+    fFormulas.push([`=${buildExpenseOccurrenceFormula(fixedLast, `$A${r}`, true, null)}*$E$3`]);
     gFormulas.push([`=IF(DAY($A${r})=15,'${CONFIG.sheets.tax}'!$B$19,0)`]);
     hFormulas.push([`=$C${r}+$D${r}-$E${r}-$F${r}-$G${r}`]);
     iFormulas.push([
@@ -1028,11 +1088,12 @@ function buildDashboardTab(ss) {
 }
 
 /**
- * Monthly outlook block: this month + 3 months ahead. Fixed-expense totals are
- * constant across months (that's what "fixed" means) so the seasonal multiplier
- * column on 4_Fixed_Expenses is the lever to tune them; variable-expense totals
- * are pulled per calendar month from their exact dated rows on that tab, so
- * installment plans naturally land in the month you dated each installment for.
+ * Monthly outlook block: this month + 3 months ahead. Both the fixed and
+ * variable expense totals are recomputed per month via buildExpenseOccurrenceFormula,
+ * so a bi-monthly/quarterly recurring cost (e.g. ארנונה every 2 months) only shows
+ * up in the months it actually falls due, and multi-installment plans land exactly
+ * in the months their payments were scheduled for - no duplicate rows needed. The
+ * seasonal multiplier column on 4_Fixed_Expenses is still the lever to tune amounts.
  */
 function buildMonthlyOutlook(sheet, forecastStart, forecastEnd, fixedLast) {
   const titleRow = 11;
@@ -1058,16 +1119,9 @@ function buildMonthlyOutlook(sheet, forecastStart, forecastEnd, fixedLast) {
     const row = dataFirstRow + i;
     sheet.getRange(row, 1).setValue(label);
     sheet.getRange(row, 2).setFormula(`=MIN(EOMONTH(TODAY(),${i}),$A$${forecastEnd})`);
-    sheet
-      .getRange(row, 3)
-      .setFormula(
-        `=SUMIF('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLast},"קבועה",'${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast})`
-      );
-    sheet
-      .getRange(row, 4)
-      .setFormula(
-        `=SUMPRODUCT(('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLast}="משתנה")*(YEAR('${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLast})=YEAR(EOMONTH(TODAY(),${i})))*(MONTH('${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLast})=MONTH(EOMONTH(TODAY(),${i})))*'${CONFIG.sheets.fixed}'!$G$2:$G$${fixedLast})`
-      );
+    const monthTarget = `EOMONTH(TODAY(),${i})`;
+    sheet.getRange(row, 3).setFormula(`=${buildExpenseOccurrenceFormula(fixedLast, monthTarget, false, 'קבועה')}`);
+    sheet.getRange(row, 4).setFormula(`=${buildExpenseOccurrenceFormula(fixedLast, monthTarget, false, 'משתנה')}`);
     sheet
       .getRange(row, 5)
       .setFormula(
