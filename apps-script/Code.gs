@@ -360,10 +360,31 @@ function getPricingLayout() {
   const marginRow = 6;
   const safetyRow = 7;
   const statusRow = 8;
-  const headerRow = 10;
+  const hourlyTitleRow = 10;
+  const hourlyInputRow = 11;
+  const hourlyCalcRow = 12;
+  const hourlyHoursRow = 13;
+  const hourlyStatusRow = 14;
+  const headerRow = 16;
   const first = headerRow + 1;
   const last = first + CONFIG.rows.pricingData - 1;
-  return { titleRow, overheadRow, summaryTitleRow, revenueRow, marginRow, safetyRow, statusRow, headerRow, first, last };
+  return {
+    titleRow,
+    overheadRow,
+    summaryTitleRow,
+    revenueRow,
+    marginRow,
+    safetyRow,
+    statusRow,
+    hourlyTitleRow,
+    hourlyInputRow,
+    hourlyCalcRow,
+    hourlyHoursRow,
+    hourlyStatusRow,
+    headerRow,
+    first,
+    last
+  };
 }
 
 /**
@@ -429,6 +450,17 @@ function buildInstructionsTab(ss) {
   sheet.getRange('A3').setFontWeight('bold').setFontSize(11).setWrap(true);
   sheet.getRange('A3:B3').merge();
 
+  sheet
+    .getRange('A4')
+    .setValue(
+      '💡 מאיפה מתחילים בפועל: אין צורך להזין אף חשבונית כדי לדעת כמה כסף העסק צריך להכניס בחודש. ' +
+        'מלאו קודם רק את טאב 4 (הוצאות קבועות) וטאב 6 (תמחור ונקודת איזון) - זה כבר נותן תשובה: כמה מחזור/כמה שעות/כמה יחידות נדרשות לאיזון. ' +
+        'רק אחר כך, כשרוצים לעקוב יום-יום אחרי תזרים אמיתי, מוסיפים בהדרגה חשבוניות בטאבים 2-3.'
+    );
+  sheet.getRange('A4:B4').merge();
+  sheet.getRange('A4').setWrap(true).setFontStyle('italic').setFontSize(10).setBackground('#FFF2CC');
+  sheet.setRowHeight(4, 55);
+
   const sections = [
     {
       title: '1️⃣ בנקים, כרטיסי אשראי והלוואות',
@@ -463,8 +495,8 @@ function buildInstructionsTab(ss) {
     {
       title: '6️⃣ תמחור ונקודת איזון',
       color: '#0B5394',
-      fill: 'לכל מוצר/שירות - כמה עולה לכם, כמה מוכרים אותו, וכמה יחידות אתם מצפים למכור בחודש.',
-      get: 'האם כל מוצר רווחי באמת (אחרי עמלות סליקה וכו\'), וכמה כסף חייב להיכנס בחודש כדי שכדאי יהיה להחזיק את העסק פתוח (נקודת האיזון הכוללת).'
+      fill: 'לכל מוצר/שירות - כמה עולה לכם, כמה מוכרים אותו, וכמה יחידות אתם מצפים למכור בחודש. ולעסקי שירות שמוכרים שעות - כמה שעות זמינות לכם בחודש (משרה מלאה/חלקית) ומה התעריף השעתי.',
+      get: 'האם כל מוצר רווחי באמת (אחרי עמלות סליקה וכו\'), וכמה כסף/שעות/יחידות חייב להיכנס בחודש כדי שכדאי יהיה להחזיק את העסק פתוח (נקודת האיזון הכוללת - לפי מחזור או לפי שעות).'
     },
     {
       title: '7️⃣ לוח בקרה (הלשונית האחרונה - כאן מסתכלים)',
@@ -1166,6 +1198,66 @@ function buildPricingTab(ss) {
       'נקודת האיזון הכוללת מחושבת מהתקורה החודשית (B' +
         P.overheadRow +
         ') חלקי אחוז התרומה המשוקלל של כל המוצרים ביחד, לפי הכמויות הצפויות שהוזנו בטבלה למטה. שנו כמויות/מחירים בטבלה כדי לראות איך זה משפיע.'
+    );
+
+  // ---- Hourly/time-based break-even: for service businesses that sell hours, not units ----
+  styleSectionRow(sheet, `A${P.hourlyTitleRow}:D${P.hourlyTitleRow}`, 'תמחור לפי שעת עבודה (לעסקי שירות)');
+
+  sheet.getRange(`A${P.hourlyInputRow}`).setValue('שעות עבודה זמינות לחודש (משרה מלאה = 160)');
+  sheet.getRange(`B${P.hourlyInputRow}`).setValue(160);
+  sheet.getRange(`C${P.hourlyInputRow}`).setValue('תעריף שעתי נוכחי/מתוכנן (₪)');
+  sheet.getRange(`D${P.hourlyInputRow}`).setValue(0);
+  markInput(sheet.getRange(`B${P.hourlyInputRow}`));
+  markInput(sheet.getRange(`D${P.hourlyInputRow}`));
+  sheet.getRange(`B${P.hourlyInputRow}`).setDataValidation(numberRangeValidation(1, 744));
+  sheet.getRange(`D${P.hourlyInputRow}`).setDataValidation(numberRangeValidation(0, 100000));
+
+  sheet.getRange(`A${P.hourlyCalcRow}`).setValue('הכנסה חודשית צפויה בתעריף הנוכחי (₪)');
+  sheet.getRange(`B${P.hourlyCalcRow}`).setFormula(`=B${P.hourlyInputRow}*D${P.hourlyInputRow}`);
+  sheet.getRange(`C${P.hourlyCalcRow}`).setValue('תעריף שעתי נדרש לאיזון (₪/שעה)');
+  sheet
+    .getRange(`D${P.hourlyCalcRow}`)
+    .setFormula(`=IF(B${P.hourlyInputRow}>0,$B$${P.overheadRow}/B${P.hourlyInputRow},"—")`);
+
+  sheet.getRange(`A${P.hourlyHoursRow}`).setValue('מס\' שעות נדרש בתעריף הנוכחי לכיסוי ההוצאות');
+  sheet
+    .getRange(`B${P.hourlyHoursRow}`)
+    .setFormula(`=IF(D${P.hourlyInputRow}>0,$B$${P.overheadRow}/D${P.hourlyInputRow},"—")`);
+
+  sheet.getRange(`A${P.hourlyStatusRow}`).setValue('סטטוס (שעתי)');
+  sheet
+    .getRange(`B${P.hourlyStatusRow}:D${P.hourlyStatusRow}`)
+    .merge()
+    .setFormula(
+      `=IF(OR(B${P.hourlyInputRow}=0,D${P.hourlyInputRow}=0),"⚪ הזינו שעות זמינות ותעריף שעתי כדי לראות סטטוס",` +
+        `IF((B${P.hourlyCalcRow}-$B$${P.overheadRow})/B${P.hourlyCalcRow}>0.2,"🟢 מעל נקודת האיזון בבטחה",` +
+        `IF(B${P.hourlyCalcRow}>=$B$${P.overheadRow},"🟡 קרוב לנקודת האיזון",` +
+        `"🔴 מתחת לנקודת האיזון (חסר "&TEXT($B$${P.overheadRow}-B${P.hourlyCalcRow},"#,##0")&" ₪ בחודש)")))`
+    )
+    .setHorizontalAlignment('center');
+
+  setCurrency(sheet.getRange(`D${P.hourlyInputRow}`));
+  setCurrency(sheet.getRange(`B${P.hourlyCalcRow}`));
+  setCurrency(sheet.getRange(`D${P.hourlyCalcRow}`));
+
+  sheet.getRange(`A${P.hourlyInputRow}:D${P.hourlyHoursRow}`).setFontWeight('bold');
+  sheet.getRange(`B${P.hourlyStatusRow}:D${P.hourlyStatusRow}`).setFontWeight('bold').setFontSize(12);
+  markFormula(sheet.getRange(`B${P.hourlyCalcRow}`));
+  markFormula(sheet.getRange(`D${P.hourlyCalcRow}`));
+  markFormula(sheet.getRange(`B${P.hourlyHoursRow}`));
+  markFormula(sheet.getRange(`B${P.hourlyStatusRow}:D${P.hourlyStatusRow}`));
+  protectFormula(sheet.getRange(`B${P.hourlyCalcRow}`), 'תמחור שעתי - שדה מחושב');
+  protectFormula(sheet.getRange(`D${P.hourlyCalcRow}`), 'תמחור שעתי - שדה מחושב');
+  protectFormula(sheet.getRange(`B${P.hourlyHoursRow}`), 'תמחור שעתי - שדה מחושב');
+  protectFormula(sheet.getRange(`B${P.hourlyStatusRow}:D${P.hourlyStatusRow}`), 'תמחור שעתי - שדה מחושב');
+
+  sheet
+    .getRange(`A${P.hourlyInputRow}:D${P.hourlyStatusRow}`)
+    .setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
+  sheet
+    .getRange(`A${P.hourlyStatusRow}`)
+    .setNote(
+      'לעסק שמוכר שעות עבודה (ולא מוצרים) - הזינו כמה שעות זמינות לכם בחודש (תלוי במשרה מלאה/חלקית) ואת התעריף השעתי. תראו כאן גם מה התעריף המינימלי לאיזון, וגם כמה שעות חייבים לעבוד בתעריף הנוכחי.'
     );
 
   const headers = [
