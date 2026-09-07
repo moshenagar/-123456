@@ -1,0 +1,2096 @@
+[
+ {
+  "id": "p001",
+  "name": "9008 עץ",
+  "code": "MW9008",
+  "dims": "46x47.5x82 ס\"מ - גובה מושב 45",
+  "price": "320",
+  "category": "chair",
+  "material": "iron",
+  "sh": 45,
+  "img": "assets/img/001-MW9008.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p002",
+  "name": "9008",
+  "code": "MC9008",
+  "dims": "46x47.5x82 ס\"מ - גובה מושב 42",
+  "price": "230",
+  "category": "chair",
+  "material": "iron",
+  "sh": 42,
+  "img": "assets/img/002-MC9008.jpg",
+  "colors": [
+   {
+    "name": "תפוז",
+    "hex": "#e2622c"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "ירוק",
+    "hex": "#3f7d4f"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p003",
+  "name": "9024 בר קצר",
+  "code": "B902426",
+  "dims": "50x45x106 ס\"מ - גובה מושב 77",
+  "price": "320",
+  "category": "bar",
+  "material": "iron",
+  "sh": 77,
+  "img": "assets/img/003-B902426.jpg",
+  "colors": [
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "תפוז",
+    "hex": "#e2622c"
+   },
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   },
+   {
+    "name": "ירוק",
+    "hex": "#3f7d4f"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p004",
+  "name": "9009",
+  "code": "RF900926",
+  "dims": "43x43x106 ס\"מ",
+  "price": "200",
+  "category": "bar",
+  "material": "iron",
+  "sh": null,
+  "img": "assets/img/004-RF900926.jpg",
+  "colors": [
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "תפוז",
+    "hex": "#e2622c"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p005",
+  "name": "18W",
+  "code": "MCH18W",
+  "dims": "46x47x82 ס\"מ - גובה מושב 46",
+  "price": "580",
+  "category": "chair",
+  "material": "iron",
+  "sh": 46,
+  "img": "assets/img/005-MCH18W.jpg",
+  "colors": [
+   {
+    "name": "שחור ועץ טבעי",
+    "hex": "#b0b0b0"
+   },
+   {
+    "name": "אגוז ושחור",
+    "hex": "#4a3626"
+   },
+   {
+    "name": "לבן ועץ טבעי",
+    "hex": "#b0b0b0"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p006",
+  "name": "30W",
+  "code": "MBC30W",
+  "dims": "50x45x106 ס\"מ - גובה מושב 73",
+  "price": "800",
+  "category": "bar",
+  "material": "iron",
+  "sh": 73,
+  "img": "assets/img/006-MBC30W.jpg",
+  "colors": [
+   {
+    "name": "שחור ועץ טבעי",
+    "hex": "#b0b0b0"
+   },
+   {
+    "name": "אגוז ושחור",
+    "hex": "#4a3626"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p007",
+  "name": "9057 שחור",
+  "code": "RF9057MBL",
+  "dims": "51x44x44 ס\"מ",
+  "price": "500",
+  "category": "bar",
+  "material": "iron",
+  "sh": null,
+  "img": "assets/img/007-RF9057MBL.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": "כסא בר מתכוונן"
+ },
+ {
+  "id": "p008",
+  "name": "נאסא",
+  "code": "CHNASA",
+  "dims": "42x44x80 ס\"מ - גובה מושב 47",
+  "price": "360",
+  "category": "chair",
+  "material": "iron",
+  "sh": 47,
+  "img": "assets/img/008-CHNASA.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p009",
+  "name": "YD-G30-W",
+  "code": "YD30W",
+  "dims": "גובה 76 ס\"מ",
+  "price": "300",
+  "category": "bar",
+  "material": "iron",
+  "sh": 76,
+  "img": "assets/img/009-YD30W.jpg",
+  "colors": [
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p010",
+  "name": "עגלת הגשה",
+  "code": "FCART7449",
+  "dims": "",
+  "price": "1,200",
+  "category": "accessory",
+  "material": "iron",
+  "sh": null,
+  "img": "assets/img/010-FCART7449.jpg",
+  "colors": [
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p011",
+  "name": "נאסא בר",
+  "code": "BCNASA",
+  "dims": "40x39x95 ס\"מ - גובה מושב 65",
+  "price": "400",
+  "category": "bar",
+  "material": "iron",
+  "sh": 65,
+  "img": "assets/img/011-BCNASA.jpg",
+  "colors": [
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p012",
+  "name": "BT010",
+  "code": "BT010",
+  "dims": "שולחן בר קוטר 60 גובה 100",
+  "price": "800",
+  "category": "table",
+  "material": "iron",
+  "sh": null,
+  "img": "assets/img/012-BT010.jpg",
+  "colors": [
+   {
+    "name": "טבעי",
+    "hex": "#c9a066"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אגוז",
+    "hex": "#6a4a34"
+   }
+  ],
+  "note": "שולחן בר"
+ },
+ {
+  "id": "p013",
+  "name": "בר סטול שחור",
+  "code": "MBC01WBL",
+  "dims": "30x30 ס\"מ - גובה 100-120",
+  "price": "740",
+  "category": "bar",
+  "material": "iron",
+  "sh": null,
+  "img": "assets/img/013-MBC01WBL.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": "כסא בר מתכוונן"
+ },
+ {
+  "id": "p014",
+  "name": "3022",
+  "code": "ZF3022C",
+  "dims": "57x62x84 ס\"מ - גובה מושב 46",
+  "price": "460",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/014-ZF3022C.jpg",
+  "colors": [
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "קפוצ'ינו",
+    "hex": "#9c7a5c"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p015",
+  "name": "אורביט",
+  "code": "CH8053",
+  "dims": "46x57x88 ס\"מ - גובה מושב 46",
+  "price": "500",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/015-CH8053.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "קפוצ'ינו",
+    "hex": "#9c7a5c"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p016",
+  "name": "אינפיניטי",
+  "code": "CH20077",
+  "dims": "56x60x86 ס\"מ - גובה מושב 46",
+  "price": "500",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/016-CH20077.jpg",
+  "colors": [
+   {
+    "name": "קפוצ'ינו",
+    "hex": "#9c7a5c"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p017",
+  "name": "דאיה",
+  "code": "C512BSC",
+  "dims": "47x60x93 ס\"מ - גובה מושב 46",
+  "price": "560",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/017-C512BSC.jpg",
+  "colors": [
+   {
+    "name": "קפוצ'ינו",
+    "hex": "#9c7a5c"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p018",
+  "name": "אורוויל",
+  "code": "C512BSA",
+  "dims": "55x60x93 ס\"מ - גובה מושב 46",
+  "price": "600",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/018-C512BSA.jpg",
+  "colors": [
+   {
+    "name": "קפוצ'ינו",
+    "hex": "#9c7a5c"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p019",
+  "name": "C026",
+  "code": "C026FT",
+  "dims": "47x55x87 ס\"מ - גובה מושב 46",
+  "price": "600",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/019-C026FT.jpg",
+  "colors": [
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p020",
+  "name": "C368 שחור ולבן",
+  "code": "C368TXBLW",
+  "dims": "46x57x87 ס\"מ - גובה מושב 46",
+  "price": "440",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/020-C368TXBLW.jpg",
+  "colors": [
+   {
+    "name": "שחור ולבן",
+    "hex": "#3a3a3a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p021",
+  "name": "ראטן 2050",
+  "code": "ZF2050CBW",
+  "dims": "56x61x88 ס\"מ - גובה מושב 46",
+  "price": "500",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/021-ZF2050CBW.jpg",
+  "colors": [
+   {
+    "name": "שחור ולבן",
+    "hex": "#3a3a3a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p022",
+  "name": "ראטן 3035",
+  "code": "ZF2035CBW",
+  "dims": "45x59x85 ס\"מ - גובה מושב 46",
+  "price": "440",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/022-ZF2035CBW.jpg",
+  "colors": [
+   {
+    "name": "שחור ולבן",
+    "hex": "#3a3a3a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p023",
+  "name": "C685 שחור ולבן",
+  "code": "C685TXBLW",
+  "dims": "56x65x83 ס\"מ - גובה מושב 46",
+  "price": "540",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/023-C685TXBLW.jpg",
+  "colors": [
+   {
+    "name": "שחור ולבן",
+    "hex": "#3a3a3a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p024",
+  "name": "בלה בר",
+  "code": "CBAR172",
+  "dims": "57x59x114 ס\"מ - גובה מושב 75",
+  "price": "680",
+  "category": "bar",
+  "material": "aluminum",
+  "sh": 75,
+  "img": "assets/img/024-CBAR172.jpg",
+  "colors": [
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "קפוצ'ינו",
+    "hex": "#9c7a5c"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p025",
+  "name": "אינפיניטי בר",
+  "code": "CBAR075",
+  "dims": "47x58x118 ס\"מ - גובה מושב 75",
+  "price": "680",
+  "category": "bar",
+  "material": "aluminum",
+  "sh": 75,
+  "img": "assets/img/025-CBAR075.jpg",
+  "colors": [
+   {
+    "name": "קפוצ'ינו",
+    "hex": "#9c7a5c"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p026",
+  "name": "5043",
+  "code": "ZF5043C",
+  "dims": "52x57x78 ס\"מ - גובה מושב 46",
+  "price": "300",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 46,
+  "img": "assets/img/026-ZF5043C.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p027",
+  "name": "17001",
+  "code": "17001",
+  "dims": "56x63.5x88 ס\"מ",
+  "price": "400",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": null,
+  "img": "assets/img/027-17001.jpg",
+  "colors": [
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p028",
+  "name": "קומפורט",
+  "code": "CHYC003GR",
+  "dims": "87x61x101 ס\"מ - גובה מושב 52",
+  "price": "520",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 52,
+  "img": "assets/img/028-CHYC003GR.jpg",
+  "colors": [
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   }
+  ],
+  "note": "כורסא מרופדת"
+ },
+ {
+  "id": "p029",
+  "name": "0248 אפור כהה",
+  "code": "CHYC0248",
+  "dims": "64x57x89 ס\"מ - גובה מושב 45",
+  "price": "380",
+  "category": "chair",
+  "material": "aluminum",
+  "sh": 45,
+  "img": "assets/img/029-CHYC0248.jpg",
+  "colors": [
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p030",
+  "name": "לונדון",
+  "code": "ABLONDN",
+  "dims": "60x63x80 ס\"מ - גובה מושב 48",
+  "price": "500",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 48,
+  "img": "assets/img/030-ABLONDN.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "ירוק",
+    "hex": "#3f7d4f"
+   },
+   {
+    "name": "ורוד",
+    "hex": "#e3a6b8"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p031",
+  "name": "אריזונה",
+  "code": "DCARIZ",
+  "dims": "48x48x81 ס\"מ - גובה מושב 46",
+  "price": "510",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 46,
+  "img": "assets/img/031-DCARIZ.jpg",
+  "colors": [
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "גמל",
+    "hex": "#b98a52"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   },
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p032",
+  "name": "שיקגו",
+  "code": "CHICAGO",
+  "dims": "47x55x87 ס\"מ - גובה מושב 47",
+  "price": "500",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 47,
+  "img": "assets/img/032-CHICAGO.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   },
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "ירוק",
+    "hex": "#3f7d4f"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p033",
+  "name": "מיאמי",
+  "code": "MIAMI",
+  "dims": "43x53x81.5 ס\"מ - גובה מושב 47",
+  "price": "400",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 47,
+  "img": "assets/img/033-MIAMI.jpg",
+  "colors": [
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "גמל",
+    "hex": "#b98a52"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p034",
+  "name": "גולד בלום",
+  "code": "F621KD",
+  "dims": "52.5x63.5x87.5 ס\"מ - גובה מושב 49",
+  "price": "600",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 49,
+  "img": "assets/img/034-F621KD.jpg",
+  "colors": [
+   {
+    "name": "תפוז",
+    "hex": "#e2622c"
+   },
+   {
+    "name": "טורקיז",
+    "hex": "#2fa7a0"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p035",
+  "name": "נבדה",
+  "code": "DNEVADA",
+  "dims": "49x57x85 ס\"מ - גובה מושב 46",
+  "price": "400",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 46,
+  "img": "assets/img/035-DNEVADA.jpg",
+  "colors": [
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p036",
+  "name": "סנו",
+  "code": "SNOW03",
+  "dims": "52x43x86 ס\"מ - גובה מושב 45",
+  "price": "500",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 45,
+  "img": "assets/img/036-SNOW03.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p037",
+  "name": "קלאוד",
+  "code": "DCLOUD",
+  "dims": "53x46x86 ס\"מ - גובה מושב 47",
+  "price": "700",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 47,
+  "img": "assets/img/037-DCLOUD.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p038",
+  "name": "אקון",
+  "code": "DIAKON",
+  "dims": "57x52x82.5 ס\"מ - גובה מושב 47",
+  "price": "640",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 47,
+  "img": "assets/img/038-DIAKON.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p039",
+  "name": "MC15S ספסל",
+  "code": "BEN1350",
+  "dims": "130x45x81 ס\"מ - גובה מושב 47",
+  "price": "1,500",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 47,
+  "img": "assets/img/039-BEN1350.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": "ספסל מרופד"
+ },
+ {
+  "id": "p040",
+  "name": "אלגנט ספסל",
+  "code": "BN333EL",
+  "dims": "130x45x87 ס\"מ - גובה מושב 51",
+  "price": "1,500",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 51,
+  "img": "assets/img/040-BN333EL.jpg",
+  "colors": [
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": "ספסל מרופד"
+ },
+ {
+  "id": "p041",
+  "name": "ויקטוריה",
+  "code": "F244VICTB",
+  "dims": "56x43x88 ס\"מ - גובה מושב 48",
+  "price": "560",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 48,
+  "img": "assets/img/041-F244VICTB.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p042",
+  "name": "ריקסום",
+  "code": "RIXOS980",
+  "dims": "51x42x81 ס\"מ - גובה מושב 45",
+  "price": "560",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 45,
+  "img": "assets/img/042-RIXOS980.jpg",
+  "colors": [
+   {
+    "name": "תפוז",
+    "hex": "#e2622c"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p043",
+  "name": "ויקטור",
+  "code": "GS286",
+  "dims": "48x60x81 ס\"מ - גובה מושב 47",
+  "price": "340",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 47,
+  "img": "assets/img/043-GS286.jpg",
+  "colors": [
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p044",
+  "name": "בנטלי",
+  "code": "YH752BL",
+  "dims": "55x62x95 ס\"מ - גובה מושב 48",
+  "price": "640",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 48,
+  "img": "assets/img/044-YH752BL.jpg",
+  "colors": [
+   {
+    "name": "תפוז",
+    "hex": "#e2622c"
+   },
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p045",
+  "name": "נובאק",
+  "code": "CHNOVAK",
+  "dims": "57x48x82.5 ס\"מ - גובה מושב 47",
+  "price": "600",
+  "category": "chair",
+  "material": "upholstered",
+  "sh": 47,
+  "img": "assets/img/045-CHNOVAK.jpg",
+  "colors": [
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p046",
+  "name": "ספנסר",
+  "code": "PPMS41",
+  "dims": "48.5x54x89 ס\"מ - גובה מושב 45",
+  "price": "240",
+  "category": "chair",
+  "material": "plastic",
+  "sh": 45,
+  "img": "assets/img/046-PPMS41.jpg",
+  "colors": [
+   {
+    "name": "קפוצ'ינו",
+    "hex": "#9c7a5c"
+   },
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   },
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p047",
+  "name": "אקווה",
+  "code": "PP7013",
+  "dims": "56.5x53x80.5 ס\"מ - גובה מושב 45",
+  "price": "320",
+  "category": "chair",
+  "material": "plastic",
+  "sh": 45,
+  "img": "assets/img/047-PP7013.jpg",
+  "colors": [
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "ירוק",
+    "hex": "#3f7d4f"
+   },
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p048",
+  "name": "קומו",
+  "code": "PP7106",
+  "dims": "46x56x81 ס\"מ - גובה מושב 45",
+  "price": "260",
+  "category": "chair",
+  "material": "plastic",
+  "sh": 45,
+  "img": "assets/img/048-PP7106.jpg",
+  "colors": [
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "ירוק",
+    "hex": "#3f7d4f"
+   },
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   },
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p049",
+  "name": "קובה",
+  "code": "PPMS25",
+  "dims": "55x54x76 ס\"מ - גובה מושב 45",
+  "price": "150",
+  "category": "chair",
+  "material": "plastic",
+  "sh": 45,
+  "img": "assets/img/049-PPMS25.jpg",
+  "colors": [
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p050",
+  "name": "אדיסון",
+  "code": "PPMS50WH",
+  "dims": "56x53x81 ס\"מ - גובה מושב 45",
+  "price": "150",
+  "category": "chair",
+  "material": "plastic",
+  "sh": 45,
+  "img": "assets/img/050-PPMS50WH.jpg",
+  "colors": [
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p051",
+  "name": "רולקס",
+  "code": "F513PZ",
+  "dims": "55.5x49.5x102.5 ס\"מ - גובה מושב 77",
+  "price": "860",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 77,
+  "img": "assets/img/051-F513PZ.jpg",
+  "colors": [
+   {
+    "name": "ירוק",
+    "hex": "#3f7d4f"
+   },
+   {
+    "name": "תכלת",
+    "hex": "#6fb7d1"
+   },
+   {
+    "name": "כתום",
+    "hex": "#e2622c"
+   },
+   {
+    "name": "כחול כהה",
+    "hex": "#1b3a63"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p052",
+  "name": "שיקגו בר",
+  "code": "BCHICG",
+  "dims": "40x45x107 ס\"מ - גובה מושב 65",
+  "price": "520",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 65,
+  "img": "assets/img/052-BCHICG.jpg",
+  "colors": [
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   },
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   },
+   {
+    "name": "ירוק",
+    "hex": "#3f7d4f"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p053",
+  "name": "מיאמי בר",
+  "code": "BAMIAMI",
+  "dims": "42x50x92 ס\"מ - גובה מושב 65",
+  "price": "440",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 65,
+  "img": "assets/img/053-BAMIAMI.jpg",
+  "colors": [
+   {
+    "name": "ירוק",
+    "hex": "#3f7d4f"
+   },
+   {
+    "name": "כחול כהה",
+    "hex": "#1b3a63"
+   },
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   },
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   },
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור בהיר",
+    "hex": "#c9c9c9"
+   },
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p054",
+  "name": "נובאק בר",
+  "code": "BANOVAK",
+  "dims": "48x43x95.5 ס\"מ - גובה מושב 65",
+  "price": "600",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 65,
+  "img": "assets/img/054-BANOVAK.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p055",
+  "name": "אינגלנד בר",
+  "code": "ABENGLN",
+  "dims": "53x65x100 ס\"מ - גובה מושב 70",
+  "price": "420",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 70,
+  "img": "assets/img/055-ABENGLN.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "ורוד",
+    "hex": "#e3a6b8"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p056",
+  "name": "פיאנו בר",
+  "code": "LS8047GR",
+  "dims": "50x56.5x107 ס\"מ - גובה מושב 76",
+  "price": "560",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 76,
+  "img": "assets/img/056-LS8047GR.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p057",
+  "name": "וגאם בר",
+  "code": "BCVEGAS",
+  "dims": "46x56x104 ס\"מ - גובה מושב 65",
+  "price": "500",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 65,
+  "img": "assets/img/057-BCVEGAS.jpg",
+  "colors": [
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   },
+   {
+    "name": "כתום",
+    "hex": "#e2622c"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אדום",
+    "hex": "#c62828"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p058",
+  "name": "דיימונד בר",
+  "code": "F560PZ",
+  "dims": "52x57.5x107.5 ס\"מ - גובה מושב 78",
+  "price": "860",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 78,
+  "img": "assets/img/058-F560PZ.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p059",
+  "name": "ריקסום בר",
+  "code": "BARIXOS",
+  "dims": "50x39x92 ס\"מ - גובה מושב 65",
+  "price": "560",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 65,
+  "img": "assets/img/059-BARIXOS.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p060",
+  "name": "רובר בר",
+  "code": "LS8043",
+  "dims": "53x57x107 ס\"מ - גובה מושב 76.5",
+  "price": "560",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 76,
+  "img": "assets/img/060-LS8043.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p061",
+  "name": "נבדה בר",
+  "code": "BNEVADA",
+  "dims": "44x48x93 ס\"מ - גובה מושב 65",
+  "price": "500",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 65,
+  "img": "assets/img/061-BNEVADA.jpg",
+  "colors": [
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "צהוב",
+    "hex": "#e8b923"
+   },
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "אפור בהיר",
+    "hex": "#c9c9c9"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p062",
+  "name": "קלאוד בר",
+  "code": "BCLOUD",
+  "dims": "42x41x92 ס\"מ - גובה מושב 65",
+  "price": "560",
+  "category": "bar",
+  "material": "upholstered",
+  "sh": 65,
+  "img": "assets/img/062-BCLOUD.jpg",
+  "colors": [
+   {
+    "name": "חום",
+    "hex": "#6b4226"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p063",
+  "name": "CX1118H",
+  "code": "CX1118H",
+  "dims": "64x69x118.5-128 ס\"מ - גובה מושב 51-58",
+  "price": "840",
+  "category": "office",
+  "material": "office",
+  "sh": null,
+  "img": "assets/img/063-CX1118H.jpg",
+  "colors": [
+   {
+    "name": "כחול",
+    "hex": "#2b5faa"
+   },
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p064",
+  "name": "ג'ונגל",
+  "code": "C00397100",
+  "dims": "46x53x96 ס\"מ - גובה מושב 48",
+  "price": "480",
+  "category": "chair",
+  "material": "wood",
+  "sh": 48,
+  "img": "assets/img/064-C00397100.jpg",
+  "colors": [],
+  "note": ""
+ },
+ {
+  "id": "p065",
+  "name": "אומגה",
+  "code": "CH3917",
+  "dims": "48x57x87 ס\"מ - גובה מושב 48",
+  "price": "330",
+  "category": "chair",
+  "material": "wood",
+  "sh": 48,
+  "img": "assets/img/065-CH3917.jpg",
+  "colors": [],
+  "note": ""
+ },
+ {
+  "id": "p066",
+  "name": "יונייטד",
+  "code": "MBC3950",
+  "dims": "46x54x95 ס\"מ - גובה מושב 48",
+  "price": "330",
+  "category": "chair",
+  "material": "wood",
+  "sh": 48,
+  "img": "assets/img/066-MBC3950.jpg",
+  "colors": [],
+  "note": ""
+ },
+ {
+  "id": "p067",
+  "name": "טרה",
+  "code": "BURN3912",
+  "dims": "48x51x83 ס\"מ - גובה מושב 48",
+  "price": "330",
+  "category": "chair",
+  "material": "wood",
+  "sh": 48,
+  "img": "assets/img/067-BURN3912.jpg",
+  "colors": [],
+  "note": ""
+ },
+ {
+  "id": "p068",
+  "name": "לוגן",
+  "code": "MBEECH",
+  "dims": "75x90x150 ס\"מ",
+  "price": "660",
+  "category": "table",
+  "material": "wood",
+  "sh": null,
+  "img": "assets/img/068-MBEECH.jpg",
+  "colors": [],
+  "note": ""
+ },
+ {
+  "id": "p069",
+  "name": "מון",
+  "code": "MBT6450",
+  "dims": "גובה 75 ס\"מ, קוטר 120 נפתח",
+  "price": "1,320",
+  "category": "table",
+  "material": "wood",
+  "sh": null,
+  "img": "assets/img/069-MBT6450.jpg",
+  "colors": [],
+  "note": "שולחן עגול נפתח"
+ },
+ {
+  "id": "p070",
+  "name": "דקסטר שחור",
+  "code": "DT031BLAC",
+  "dims": "160x90x75 ס\"מ",
+  "price": "1,000",
+  "category": "table",
+  "material": "wood",
+  "sh": null,
+  "img": "assets/img/070-DT031BLAC.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p071",
+  "name": "רוי",
+  "code": "DT008",
+  "dims": "160x90x75 ס\"מ",
+  "price": "1,000",
+  "category": "table",
+  "material": "wood",
+  "sh": null,
+  "img": "assets/img/071-DT008.jpg",
+  "colors": [
+   {
+    "name": "שחור",
+    "hex": "#232323"
+   },
+   {
+    "name": "עץ",
+    "hex": "#a9793f"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p072",
+  "name": "14002",
+  "code": "14002",
+  "dims": "75x100x180-240 ס\"מ נפתח",
+  "price": "5,000",
+  "category": "table",
+  "material": "aluminum",
+  "sh": null,
+  "img": "assets/img/072-14002.jpg",
+  "colors": [
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p073",
+  "name": "15004EX",
+  "code": "15004EX",
+  "dims": "75x100x200-300 ס\"מ נפתח",
+  "price": "4,000",
+  "category": "table",
+  "material": "aluminum",
+  "sh": null,
+  "img": "assets/img/073-15004EX.jpg",
+  "colors": [
+   {
+    "name": "לבן",
+    "hex": "#f7f7f5"
+   },
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p074",
+  "name": "שולחן נפתח דמוי קרמיקה",
+  "code": "ALHYT070",
+  "dims": "75x90x180-240 ס\"מ",
+  "price": "3,000",
+  "category": "table",
+  "material": "aluminum",
+  "sh": null,
+  "img": "assets/img/074-ALHYT070.jpg",
+  "colors": [],
+  "note": ""
+ },
+ {
+  "id": "p075",
+  "name": "שולחן מעוצב",
+  "code": "ALHYT068",
+  "dims": "75x90x135-270 ס\"מ",
+  "price": "2,300",
+  "category": "table",
+  "material": "aluminum",
+  "sh": null,
+  "img": "assets/img/075-ALHYT068.jpg",
+  "colors": [],
+  "note": ""
+ },
+ {
+  "id": "p076",
+  "name": "15004 אפור כהה",
+  "code": "15004DDG",
+  "dims": "75x90x150 ס\"מ",
+  "price": "2,200",
+  "category": "table",
+  "material": "aluminum",
+  "sh": null,
+  "img": "assets/img/076-15004DDG.jpg",
+  "colors": [
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p077",
+  "name": "19002 אפור כהה",
+  "code": "19002DG",
+  "dims": "75x149x97-147 ס\"מ נפתח",
+  "price": "4,000",
+  "category": "table",
+  "material": "aluminum",
+  "sh": null,
+  "img": "assets/img/077-19002DG.jpg",
+  "colors": [
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p078",
+  "name": "שולחן מעוצב + 6 כיסאות",
+  "code": "ALHYT071",
+  "dims": "75x90x150-210 ס\"מ",
+  "price": "2,700",
+  "category": "set",
+  "material": "aluminum",
+  "sh": null,
+  "img": "assets/img/078-ALHYT071.jpg",
+  "colors": [],
+  "note": "כולל 6 כיסאות"
+ },
+ {
+  "id": "p079",
+  "name": "קלאוד",
+  "code": "SH204",
+  "dims": "3x3 מ'",
+  "price": "2,200",
+  "category": "umbrella",
+  "material": "umbrella",
+  "sh": null,
+  "img": "assets/img/079-SH204.jpg",
+  "colors": [
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   },
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p080",
+  "name": "שילד",
+  "code": "SH601DG",
+  "dims": "3x3 מ'",
+  "price": "1,800",
+  "category": "umbrella",
+  "material": "umbrella",
+  "sh": null,
+  "img": "assets/img/080-SH601DG.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p081",
+  "name": "קאנופי",
+  "code": "SH13801",
+  "dims": "2.7x2.7 מ'",
+  "price": "800",
+  "category": "umbrella",
+  "material": "umbrella",
+  "sh": null,
+  "img": "assets/img/081-SH13801.jpg",
+  "colors": [
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   },
+   {
+    "name": "אפור כהה",
+    "hex": "#5b5b5b"
+   }
+  ],
+  "note": ""
+ },
+ {
+  "id": "p082",
+  "name": "פינת ישיבה 2135",
+  "code": "2135DG51",
+  "dims": "מס' יחיד 95x75x62.5, טרио 205x75x62.5, שולחן 120x65x40",
+  "price": "6,400",
+  "category": "gardenset",
+  "material": "garden",
+  "sh": null,
+  "img": "assets/img/082-2135DG51.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": "פינת ישיבה 3+1+1 + שולחן"
+ },
+ {
+  "id": "p083",
+  "name": "אלטו 4",
+  "code": "ALTO",
+  "dims": "מס' יחיד 82x80x78, טריו 172x80x78, שולחן 110x55x40",
+  "price": "6,000",
+  "category": "gardenset",
+  "material": "garden",
+  "sh": null,
+  "img": "assets/img/083-ALTO.jpg",
+  "colors": [
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   },
+   {
+    "name": "בז'",
+    "hex": "#d8c3a5"
+   }
+  ],
+  "note": "פינת ישיבה 3+1+1 + שולחן"
+ },
+ {
+  "id": "p084",
+  "name": "לאים 5",
+  "code": "LYSS5",
+  "dims": "מס' יחיד 82x80x78, טריו 172x80x78, שולחנות 50x45 / 70x35",
+  "price": "6,000",
+  "category": "gardenset",
+  "material": "garden",
+  "sh": null,
+  "img": "assets/img/084-LYSS5.jpg",
+  "colors": [
+   {
+    "name": "טבעי",
+    "hex": "#c9a066"
+   },
+   {
+    "name": "אפור",
+    "hex": "#9a9a9a"
+   }
+  ],
+  "note": "פינת ישיבה 3+1+1 + 2 שולחנות"
+ },
+ {
+  "id": "p085",
+  "name": "לאמוי 5",
+  "code": "LAMOIRATA",
+  "dims": "מס' יחיד 90x74x65, טריו 229x74x65, שולחן 130x65x38",
+  "price": "9,000",
+  "category": "gardenset",
+  "material": "garden",
+  "sh": null,
+  "img": "assets/img/085-LAMOIRATA.jpg",
+  "colors": [],
+  "note": "פינת ישיבה 3+1+1 + שולחן, ראטן וגריל"
+ },
+ {
+  "id": "p086",
+  "name": "גנובה - שולחן אוכל ל-6",
+  "code": "GENOVA058",
+  "dims": "שולחן 165x90x43, כיסא W57xD52xH81",
+  "price": "7,000",
+  "category": "gardenset",
+  "material": "garden",
+  "sh": null,
+  "img": "assets/img/086-GENOVA058.jpg",
+  "colors": [],
+  "note": "פינת אוכל לחצר לשישה, עץ טיק"
+ },
+ {
+  "id": "p087",
+  "name": "זכוכית 80 - פינת אוכל ל-6",
+  "code": "TABLE080",
+  "dims": "שולחן 90x170x73 + 6 כיסאות",
+  "price": "4,600",
+  "category": "gardenset",
+  "material": "garden",
+  "sh": null,
+  "img": "assets/img/087-TABLE080.jpg",
+  "colors": [],
+  "note": "פינת אוכל לחצר לשישה, טופ זכוכית"
+ }
+]
