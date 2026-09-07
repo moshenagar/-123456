@@ -41,7 +41,8 @@ const CONFIG = {
     employees: 'עלות_עובדים_ותמחור',
     tax: '5_Tax_Engine',
     pricing: '6_Pricing_BreakEven',
-    dashboard: '7_Master_Forecast_Dashboard'
+    dashboard: '7_Master_Forecast_Dashboard',
+    visualDashboard: '8_Dashboard_Visual'
   },
   rows: {
     banksData: 8,            // bank accounts - real liquid cash
@@ -143,6 +144,7 @@ function setupCashFlowSystem() {
     buildTaxEngineTab(ss);
     buildPricingTab(ss);
     buildDashboardTab(ss);
+    buildVisualDashboardTab(ss);
 
     reorderSheets(ss);
     removeDefaultBlankSheet(ss);
@@ -152,7 +154,7 @@ function setupCashFlowSystem() {
 
     ui.alert(
       'המערכת הותקנה בהצלחה ✅',
-      'כל 7 הטאבים נבנו ועודכנו.\n\n' +
+      'כל הטאבים נבנו ועודכנו.\n\n' +
         '1. מלאו את התאים הצהובים (קלט) בטאבים 1-4 ו-6.\n' +
         '2. טאב 5 (מנוע מיסים) וטאב 7 (לוח בקרה) יתעדכנו אוטומטית.\n' +
         '3. ניתן להריץ את התקנה מחדש בכל עת - היא תבנה הכל מחדש בבטחה.',
@@ -174,7 +176,8 @@ function reorderSheets(ss) {
     CONFIG.sheets.employees,
     CONFIG.sheets.tax,
     CONFIG.sheets.pricing,
-    CONFIG.sheets.dashboard
+    CONFIG.sheets.dashboard,
+    CONFIG.sheets.visualDashboard
   ];
   order.forEach((name, idx) => {
     const sheet = ss.getSheetByName(name);
@@ -527,10 +530,16 @@ function buildInstructionsTab(ss) {
       get: 'האם כל מוצר רווחי באמת (אחרי עמלות סליקה וכו\'), וכמה כסף/שעות/יחידות חייב להיכנס בחודש כדי שכדאי יהיה להחזיק את העסק פתוח (נקודת האיזון הכוללת - לפי מחזור או לפי שעות).'
     },
     {
-      title: '7️⃣ לוח בקרה (הלשונית האחרונה - כאן מסתכלים)',
+      title: '7️⃣ לוח בקרה (הלשונית לפני האחרונה - כאן מסתכלים)',
       color: '#38761D',
       fill: 'כלום, חוץ מ"מצב תרחיש" למעלה (רגיל / קיצון) אם רוצים לבדוק תרחיש גרוע.',
       get: 'כל מה שחשוב במבט אחד - כמה כסף יש עכשיו, כמה יהיה בעוד 15/30/60/90 יום, מתי צפויה הנקודה הכי נמוכה, האם העסק מעל נקודת האיזון, ותחזית יום-אחר-יום ל-90 יום קדימה.'
+    },
+    {
+      title: '8️⃣ דאשבורד ויזואלי למנהלים',
+      color: '#B45309',
+      fill: 'כלום - כל התרשימים כאן מבוססים אוטומטית על שאר הטאבים.',
+      get: 'תמונה חזותית להצגה למנהלים/שותפים: גרף קו של יתרת הבנק ל-90 יום, עמודות של התחזית החודשית, השוואת הכנסות מול תקורה (נקודת האיזון), ופיצול ההוצאות הקבועות/משתנות לפי קטגוריה - הכל בעמוד אחד, נוח להדפסה או שיתוף מסך.'
     }
   ];
 
@@ -1731,6 +1740,142 @@ function buildKpiCard(sheet, labelA1, valueA1, labelText, valueFormula, type) {
   if (type === 'currency') setCurrency(valueRange);
   sheet.setRowHeight(labelRange.getRow(), 30);
   sheet.setRowHeight(valueRange.getRow(), 34);
+}
+
+// ============================================================================
+// TAB 8: 8_Dashboard_Visual - chart-based view for managers/partners
+// ============================================================================
+function buildVisualDashboardTab(ss) {
+  const sheet = getOrCreateSheet(ss, CONFIG.sheets.visualDashboard);
+  sheet.setTabColor('#B45309');
+  sheet.setRightToLeft(true);
+
+  // Idempotent rebuild: drop any charts from a previous run before re-adding them.
+  sheet.getCharts().forEach(chart => sheet.removeChart(chart));
+
+  styleTitleRow(sheet, 'A1:J1', '📊 דאשבורד ויזואלי למנהלים');
+  sheet.getRange('A3:J3').merge();
+  sheet
+    .getRange('A3')
+    .setValue('כל התרשימים כאן מתעדכנים אוטומטית משאר הטאבים - אין צורך למלא או לערוך כאן דבר. נוח להציג/להדפיס בפגישות.')
+    .setFontStyle('italic')
+    .setFontSize(10)
+    .setBackground('#FFF2CC')
+    .setWrap(true);
+  sheet.setRowHeight(3, 30);
+
+  const dashboardSheet = ss.getSheetByName(CONFIG.sheets.dashboard);
+  const P = getPricingLayout();
+
+  const forecastStart = CONFIG.rows.forecastStart;
+  const forecastEnd = forecastStart + CONFIG.rows.forecastDays - 1;
+  const monthlyHeaderRow = 12; // header row of the monthly-outlook table on Tab 7
+  const monthlyLastRow = 16; // 4 data rows (this month .. +3 months)
+
+  // ---- Helper (backing) data for charts that need local aggregation ----
+  const helperRow = 40;
+  sheet
+    .getRange(helperRow, 1)
+    .setValue('🔧 נתוני עזר לתרשימים - נוצר אוטומטית, אין לערוך')
+    .setFontWeight('bold')
+    .setFontColor('#999999');
+
+  const revHeaderRow = helperRow + 1;
+  const revLabelRow = helperRow + 2;
+  const overheadLabelRow = helperRow + 3;
+  sheet.getRange(revHeaderRow, 1).setValue('מדד');
+  sheet.getRange(revHeaderRow, 2).setValue('סכום (₪)');
+  sheet.getRange(revLabelRow, 1).setValue('הכנסות חודשיות צפויות');
+  sheet.getRange(revLabelRow, 2).setFormula(`='${CONFIG.sheets.pricing}'!B${P.revenueRow}`);
+  sheet.getRange(overheadLabelRow, 1).setValue('תקורה חודשית (נקודת איזון)');
+  sheet.getRange(overheadLabelRow, 2).setFormula(`='${CONFIG.sheets.pricing}'!B${P.overheadRow}`);
+  setCurrency(sheet.getRange(revLabelRow, 2, 2, 1));
+  markFormula(sheet.getRange(revLabelRow, 2, 2, 1));
+  protectFormula(sheet.getRange(revLabelRow, 2, 2, 1), 'נתוני עזר לתרשים - שדה מחושב');
+
+  const fixedFirst = 2;
+  const fixedLast = 1 + CONFIG.rows.fixedData;
+  const categories = CONFIG.expenseVatBank.map(item => item.name).filter(name => name !== 'אחר (הקלדה חופשית)');
+  const categoryHeaderRow = helperRow + 5;
+  const categoryFirst = categoryHeaderRow + 1;
+  const categoryLast = categoryFirst + categories.length - 1;
+  sheet.getRange(categoryHeaderRow, 1).setValue('קטגוריה');
+  sheet.getRange(categoryHeaderRow, 2).setValue('סה"כ חודשי (₪)');
+  categories.forEach((name, i) => {
+    const row = categoryFirst + i;
+    sheet.getRange(row, 1).setValue(name);
+    sheet
+      .getRange(row, 2)
+      .setFormula(
+        `=SUMIFS('${CONFIG.sheets.fixed}'!$H$${fixedFirst}:$H$${fixedLast},'${CONFIG.sheets.fixed}'!$A$${fixedFirst}:$A$${fixedLast},$A${row})`
+      );
+  });
+  setCurrency(sheet.getRange(categoryFirst, 2, categories.length, 1));
+  markFormula(sheet.getRange(categoryFirst, 2, categories.length, 1));
+  protectFormula(sheet.getRange(categoryFirst, 2, categories.length, 1), 'נתוני עזר לתרשים - שדה מחושב');
+
+  sheet.hideRows(helperRow, categoryLast - helperRow + 1);
+
+  // ---- Chart 1: 90-day cash balance trend (data lives on Tab 7) ----
+  const cashChart = sheet
+    .newChart()
+    .setChartType(Charts.ChartType.LINE)
+    .addRange(dashboardSheet.getRange(forecastStart - 1, 1, forecastEnd - forecastStart + 2, 1))
+    .addRange(dashboardSheet.getRange(forecastStart - 1, 8, forecastEnd - forecastStart + 2, 1))
+    .setOption('title', 'תזרים מזומנים - יתרת בנק צפויה ל-90 יום')
+    .setOption('legend', { position: 'none' })
+    .setOption('colors', [CONFIG.colors.sectionBg])
+    .setOption('hAxis', { title: 'תאריך', slantedText: true })
+    .setOption('vAxis', { title: 'יתרה (₪)' })
+    .setOption('width', 620)
+    .setOption('height', 360)
+    .setPosition(5, 1, 0, 0)
+    .build();
+  sheet.insertChart(cashChart);
+
+  // ---- Chart 2: monthly closing-balance outlook (data lives on Tab 7) ----
+  const monthlyChart = sheet
+    .newChart()
+    .setChartType(Charts.ChartType.COLUMN)
+    .addRange(dashboardSheet.getRange(monthlyHeaderRow, 1, monthlyLastRow - monthlyHeaderRow + 1, 1))
+    .addRange(dashboardSheet.getRange(monthlyHeaderRow, 5, monthlyLastRow - monthlyHeaderRow + 1, 1))
+    .setOption('title', 'תחזית חודשית - יתרת סגירה צפויה')
+    .setOption('legend', { position: 'none' })
+    .setOption('colors', ['#38761D'])
+    .setOption('vAxis', { title: 'יתרה (₪)' })
+    .setOption('width', 620)
+    .setOption('height', 360)
+    .setPosition(5, 8, 0, 0)
+    .build();
+  sheet.insertChart(monthlyChart);
+
+  // ---- Chart 3: expected revenue vs. break-even overhead (data lives on Tab 6) ----
+  const beChart = sheet
+    .newChart()
+    .setChartType(Charts.ChartType.COLUMN)
+    .addRange(sheet.getRange(revHeaderRow, 1, 3, 2))
+    .setOption('title', 'הכנסות צפויות מול תקורה (נקודת איזון)')
+    .setOption('legend', { position: 'none' })
+    .setOption('colors', ['#0B5394'])
+    .setOption('vAxis', { title: '₪ לחודש' })
+    .setOption('width', 620)
+    .setOption('height', 360)
+    .setPosition(24, 1, 0, 0)
+    .build();
+  sheet.insertChart(beChart);
+
+  // ---- Chart 4: fixed/variable expense breakdown by category (data lives on Tab 4) ----
+  const pieChart = sheet
+    .newChart()
+    .setChartType(Charts.ChartType.PIE)
+    .addRange(sheet.getRange(categoryHeaderRow, 1, categories.length + 1, 2))
+    .setOption('title', 'התפלגות ההוצאות הקבועות/משתנות לפי קטגוריה')
+    .setOption('pieSliceText', 'percentage')
+    .setOption('width', 620)
+    .setOption('height', 360)
+    .setPosition(24, 8, 0, 0)
+    .build();
+  sheet.insertChart(pieChart);
 }
 
 // ============================================================================
