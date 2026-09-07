@@ -143,7 +143,7 @@ function buildMaterialChips(){
 
 function updateSectionTitle(){
   const navItem = NAV.find(n=>n.key===state.nav);
-  document.getElementById('sectionTitle').textContent = navItem ? navItem.label : '';
+  document.getElementById('sectionTitle').innerHTML = navItem ? `<b>${navItem.label}</b>` : '';
 }
 
 function buildFootNav(){
