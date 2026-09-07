@@ -33,6 +33,7 @@
 // ============================================================================
 const CONFIG = {
   sheets: {
+    instructions: '0_הוראות_שימוש',
     banks: '1_Banks_Credit',
     receivables: '2_Receivables',
     payables: '3_Payables',
@@ -131,6 +132,7 @@ function setupCashFlowSystem() {
   try {
     ss.toast('בונה את הטאבים...', 'מערכת תזרים מזומנים', 5);
 
+    buildInstructionsTab(ss);
     buildBanksCreditTab(ss);
     buildReceivablesTab(ss);
     buildPayablesTab(ss);
@@ -161,6 +163,7 @@ function setupCashFlowSystem() {
 
 function reorderSheets(ss) {
   const order = [
+    CONFIG.sheets.instructions,
     CONFIG.sheets.banks,
     CONFIG.sheets.receivables,
     CONFIG.sheets.payables,
@@ -410,6 +413,100 @@ function fillDefaultColumn(sheet, startRow, endRow, col, value) {
   const numRows = endRow - startRow + 1;
   const values = Array.from({ length: numRows }, () => [value]);
   sheet.getRange(startRow, col, numRows, 1).setValues(values);
+}
+
+// ============================================================================
+// TAB 0: 0_הוראות_שימוש (Instructions)
+// ============================================================================
+function buildInstructionsTab(ss) {
+  const sheet = getOrCreateSheet(ss, CONFIG.sheets.instructions);
+  sheet.setTabColor('#434343');
+  sheet.setRightToLeft(true);
+
+  styleTitleRow(sheet, 'A1:B1', 'מדריך שימוש מהיר במערכת');
+
+  sheet.getRange('A3').setValue('כלל אצבע: תאים צהובים = אתם ממלאים. תאים אפורים = המערכת מחשבת לבד, אל תיגעו.');
+  sheet.getRange('A3').setFontWeight('bold').setFontSize(11).setWrap(true);
+  sheet.getRange('A3:B3').merge();
+
+  const sections = [
+    {
+      title: '1️⃣ בנקים, כרטיסי אשראי והלוואות',
+      color: '#1F3864',
+      fill: 'שמות החשבונות/כרטיסים/הלוואות שלכם והיתרות שלהם. בבנקים - כמה כסף באמת יש לכם בעו"ש עכשיו (זה הבסיס לכל התחזית). בכרטיסי אשראי - כמה חייבים על כל כרטיס ולאיזה בנק זה מתחייב (עדכנו שוטף). בהלוואות - מה נשאר לשלם, כמה לחודש, וכמה תשלומים נותרו.',
+      get: 'תמונת מצב אמיתית של הנכסים וההתחייבויות שלכם.'
+    },
+    {
+      title: '2️⃣ לקוחות (הכנסות שאמורות להיכנס)',
+      color: '#38761D',
+      fill: 'לכל חשבונית - למי, כמה, מתי הוצאה, תנאי התשלום, וכמה אתם בטוחים שתקבלו (אחוז).',
+      get: 'תאריך משוער שבו הכסף באמת ייכנס לבנק, בהתחשב באיחורים אפשריים.'
+    },
+    {
+      title: '3️⃣ ספקים (הוצאות שאתם צריכים לשלם)',
+      color: '#B45309',
+      fill: 'לכל חשבונית מספק - למי, כמה, מתי, ותנאי התשלום.',
+      get: 'תאריך משוער שבו הכסף באמת ייצא מהבנק.'
+    },
+    {
+      title: '4️⃣ הוצאות קבועות ומשתנות',
+      color: '#741B47',
+      fill: 'כל הוצאה (שכר, שכירות, ארנונה, חשמל...) - בחרו קטגוריה, מתי משלמים בפעם הראשונה, כל כמה חודשים זה חוזר, וכמה. מע"מ מתמלא אוטומטית לפי הקטגוריה שבחרתם.',
+      get: 'כל ההוצאות שלכם מסודרות במקום אחד, שמוזנות אוטומטית לתחזית ולחישוב המע"מ.'
+    },
+    {
+      title: '5️⃣ מנוע מיסים',
+      color: '#990000',
+      fill: 'רק פעם אחת בהתחלה - אחוז המע"מ, אחוז מקדמת מס הכנסה, וסכום ביטוח לאומי.',
+      get: 'כמה כסף אתם חייבים לשים בצד למיסים (מע"מ + מקדמות + ביטוח לאומי), וכמה כסף באמת שלכם אחרי זה ("יתרה חופשית ממיסים").'
+    },
+    {
+      title: '6️⃣ תמחור ונקודת איזון',
+      color: '#0B5394',
+      fill: 'לכל מוצר/שירות - כמה עולה לכם, כמה מוכרים אותו, וכמה יחידות אתם מצפים למכור בחודש.',
+      get: 'האם כל מוצר רווחי באמת (אחרי עמלות סליקה וכו\'), וכמה כסף חייב להיכנס בחודש כדי שכדאי יהיה להחזיק את העסק פתוח (נקודת האיזון הכוללת).'
+    },
+    {
+      title: '7️⃣ לוח בקרה (הלשונית האחרונה - כאן מסתכלים)',
+      color: '#38761D',
+      fill: 'כלום, חוץ מ"מצב תרחיש" למעלה (רגיל / קיצון) אם רוצים לבדוק תרחיש גרוע.',
+      get: 'כל מה שחשוב במבט אחד - כמה כסף יש עכשיו, כמה יהיה בעוד 15/30/60/90 יום, מתי צפויה הנקודה הכי נמוכה, האם העסק מעל נקודת האיזון, ותחזית יום-אחר-יום ל-90 יום קדימה.'
+    }
+  ];
+
+  let row = 5;
+  sections.forEach(section => {
+    sheet.getRange(row, 1, 1, 2).merge();
+    sheet
+      .getRange(row, 1)
+      .setValue(section.title)
+      .setBackground(section.color)
+      .setFontColor('#FFFFFF')
+      .setFontWeight('bold')
+      .setFontSize(12)
+      .setHorizontalAlignment('center')
+      .setVerticalAlignment('middle');
+    sheet.setRowHeight(row, 30);
+    row++;
+
+    sheet.getRange(row, 1).setValue('מה למלא').setFontWeight('bold').setVerticalAlignment('top');
+    sheet.getRange(row, 2).setValue(section.fill).setWrap(true).setVerticalAlignment('top');
+    sheet.setRowHeight(row, 60);
+    row++;
+
+    sheet.getRange(row, 1).setValue('מה מקבלים').setFontWeight('bold').setVerticalAlignment('top');
+    sheet.getRange(row, 2).setValue(section.get).setWrap(true).setVerticalAlignment('top');
+    sheet.setRowHeight(row, 50);
+    row++;
+
+    row++; // spacer
+  });
+
+  sheet.getRange(3, 1, row - 3, 2).setBorder(true, true, true, true, true, true, '#DDDDDD', SpreadsheetApp.BorderStyle.SOLID);
+
+  sheet.setColumnWidths(1, 1, 150);
+  sheet.setColumnWidths(2, 1, 550);
+  sheet.setFrozenRows(3);
 }
 
 // ============================================================================
