@@ -38,6 +38,7 @@ const CONFIG = {
     receivables: '2_Receivables',
     payables: '3_Payables',
     fixed: '4_Fixed_Expenses',
+    employees: 'עלות_עובדים_ותמחור',
     tax: '5_Tax_Engine',
     pricing: '6_Pricing_BreakEven',
     dashboard: '7_Master_Forecast_Dashboard'
@@ -49,6 +50,7 @@ const CONFIG = {
     receivablesData: 150,   // data rows 2..151
     payablesData: 150,      // data rows 2..151
     fixedData: 25,          // data rows 2..26
+    employeesData: 15,      // employee cost/pricing rows
     pricingData: 25,        // data rows 5..29
     forecastStart: 19,      // first day of the 90-day table (after the monthly outlook block)
     forecastDays: 91        // today (+0) .. today+90  => "90+ days ahead"
@@ -137,6 +139,7 @@ function setupCashFlowSystem() {
     buildReceivablesTab(ss);
     buildPayablesTab(ss);
     buildFixedExpensesTab(ss);
+    buildEmployeesTab(ss);
     buildTaxEngineTab(ss);
     buildPricingTab(ss);
     buildDashboardTab(ss);
@@ -168,6 +171,7 @@ function reorderSheets(ss) {
     CONFIG.sheets.receivables,
     CONFIG.sheets.payables,
     CONFIG.sheets.fixed,
+    CONFIG.sheets.employees,
     CONFIG.sheets.tax,
     CONFIG.sheets.pricing,
     CONFIG.sheets.dashboard
@@ -388,6 +392,24 @@ function getPricingLayout() {
 }
 
 /**
+ * Single source of truth for עלות_עובדים_ותמחור's row layout: a statutory-
+ * rate parameters block (National Insurance employer brackets, pension,
+ * severance - shared by all employee rows since these are the same in law
+ * for everyone), then the per-employee cost/pricing table.
+ */
+function getEmployeesLayout() {
+  const titleRow = 1;
+  const paramsTitleRow = 3;
+  const paramsFirst = 4;
+  const paramsLast = 8;
+  const headerRow = 10;
+  const first = headerRow + 1;
+  const last = first + CONFIG.rows.employeesData - 1;
+  const totalRow = last + 2;
+  return { titleRow, paramsTitleRow, paramsFirst, paramsLast, headerRow, first, last, totalRow };
+}
+
+/**
  * Builds a SUMPRODUCT formula fragment (no leading "=") that totals
  * 4_Fixed_Expenses rows occurring on/in a given target date or month.
  * Each row is defined by: C=first payment date, D=frequency in months,
@@ -485,6 +507,12 @@ function buildInstructionsTab(ss) {
       color: '#741B47',
       fill: 'כל הוצאה (שכר, שכירות, ארנונה, חשמל...) - בחרו קטגוריה, מתי משלמים בפעם הראשונה, כל כמה חודשים זה חוזר, וכמה. מע"מ מתמלא אוטומטית לפי הקטגוריה שבחרתם.',
       get: 'כל ההוצאות שלכם מסודרות במקום אחד, שמוזנות אוטומטית לתחזית ולחישוב המע"מ.'
+    },
+    {
+      title: '👥 עלות עובדים ותמחור שעתי',
+      color: '#674EA7',
+      fill: 'לכל עובד - שכר ברוטו, שעות עבודה חייבות ללקוח בחודש, ואחוז הרווח הרצוי. עלויות המעסיק על פי חוק (ביטוח לאומי, פנסיה, פיצויים) מחושבות אוטומטית מפרמטרים משותפים בראש הטאב.',
+      get: 'כמה עולה לכם באמת כל עובד לחודש, וכמה חייבים לגבות מלקוח על כל שעת עבודה שלו כדי להרוויח. חשוב: הוסיפו את העלות הכוללת שמתקבלת כאן כשורה בטאב 4, כדי שהיא תיכנס לתחזית ולנקודת האיזון הכוללת.'
     },
     {
       title: '5️⃣ מנוע מיסים',
@@ -1016,6 +1044,130 @@ function onEdit(e) {
   } catch (err) {
     // Never block manual editing due to an auto-fill failure.
   }
+}
+
+// ============================================================================
+// TAB: עלות_עובדים_ותמחור (Employee Cost & Hourly Pricing)
+// ============================================================================
+function buildEmployeesTab(ss) {
+  const sheet = getOrCreateSheet(ss, CONFIG.sheets.employees);
+  sheet.setTabColor('#674EA7');
+  const E = getEmployeesLayout();
+
+  styleTitleRow(sheet, `A${E.titleRow}:N${E.titleRow}`, 'עלות עובדים ותמחור שעתי');
+
+  styleSectionRow(
+    sheet,
+    `A${E.paramsTitleRow}:D${E.paramsTitleRow}`,
+    'פרמטרים לפי חוק (אותו דבר לכל העובדים - יש לוודא מול רואה חשבון/חברת שכר, השיעורים מתעדכנים מעת לעת)'
+  );
+  const params = [
+    ['שכר ממוצע במשק (₪, לצורך מדרגת ביטוח לאומי)', 10551],
+    ['אחוז ביטוח לאומי מעסיק - עד 60% מהשכר הממוצע', 0.0355],
+    ['אחוז ביטוח לאומי מעסיק - מעל 60% מהשכר הממוצע', 0.076],
+    ['אחוז הפרשת מעסיק לפנסיה (תגמולים)', 0.065],
+    ['אחוז הפרשת מעסיק לפיצויים', 0.0833]
+  ];
+  sheet.getRange(E.paramsFirst, 1, params.length, 2).setValues(params);
+  markInput(sheet.getRange(E.paramsFirst, 2, params.length, 1));
+  setCurrency(sheet.getRange(E.paramsFirst, 2, 1, 1));
+  setPercent(sheet.getRange(E.paramsFirst + 1, 2, 4, 1));
+  sheet
+    .getRange(`A${E.paramsFirst}`)
+    .setNote(
+      'ברירות המחדל משקפות את הצו וההנחיות הנפוצות (פנסיית חובה: 6.5% תגמולי מעסיק + 8.33% פיצויים; ביטוח לאומי מעסיק במדרגות לפי אחוז מהשכר הממוצע במשק) - אך הסכומים והשיעורים מתעדכנים מעת לעת. עדכנו כאן לפי הנתונים העדכניים לפני שמסתמכים על התוצאה.'
+    );
+
+  const headers = [
+    'שם עובד',
+    'שכר ברוטו חודשי (₪)',
+    'ביטוח לאומי מעסיק (₪)',
+    'הפרשת מעסיק לפנסיה (₪)',
+    'הפרשת מעסיק לפיצויים (₪)',
+    'הבראה שנתית (₪)',
+    'הבראה - שווה ערך חודשי (₪)',
+    'הוצאות נוספות קבועות לעובד (₪)',
+    'עלות מעסיק חודשית כוללת (₪)',
+    'שעות עבודה חייבות ללקוח בחודש',
+    'עלות לשעת עבודה (₪)',
+    'אחוז רווח רצוי מעל העלות',
+    'תעריף מומלץ ללקוח לשעה (₪)',
+    'רווח בפועל לשעה (₪)'
+  ];
+  sheet.getRange(E.headerRow, 1, 1, headers.length).setValues([headers]);
+  styleHeaderRow(sheet, E.headerRow, headers.length);
+  sheet.setFrozenRows(E.headerRow);
+
+  const first = E.first;
+  const last = E.last;
+  const n = CONFIG.rows.employeesData;
+
+  markInput(sheet.getRange(first, 1, n, 2));
+  markInput(sheet.getRange(first, 6, n, 1));
+  markInput(sheet.getRange(first, 8, n, 1));
+  markInput(sheet.getRange(first, 10, n, 1));
+  markInput(sheet.getRange(first, 12, n, 1));
+
+  sheet.getRange(first, 10, n, 1).setDataValidation(numberRangeValidation(1, 744));
+  sheet.getRange(first, 12, n, 1).setDataValidation(numberRangeValidation(0, 5));
+  fillDefaultColumn(sheet, first, last, 10, 160);
+  fillDefaultColumn(sheet, first, last, 12, 0.3);
+
+  const empFormulas = {
+    C: r => `=IF($B${r}="","",IF($B${r}<=$B$4*0.6,$B${r}*$B$5,$B$4*0.6*$B$5+($B${r}-$B$4*0.6)*$B$6))`,
+    D: r => `=IF($B${r}="","",$B${r}*$B$7)`,
+    E: r => `=IF($B${r}="","",$B${r}*$B$8)`,
+    G: r => `=IF($F${r}="","",$F${r}/12)`,
+    I: r => `=IF($B${r}="","",$B${r}+$C${r}+$D${r}+$E${r}+$G${r}+$H${r})`,
+    K: r => `=IF(OR($J${r}="",$J${r}=0),"",$I${r}/$J${r})`,
+    M: r => `=IF($K${r}="","",$K${r}*(1+$L${r}))`,
+    N: r => `=IF($K${r}="","",$M${r}-$K${r})`
+  };
+  const empColIndex = { C: 3, D: 4, E: 5, G: 7, I: 9, K: 11, M: 13, N: 14 };
+  Object.keys(empFormulas).forEach(key => {
+    const formulas = colFormulas(first, last, empFormulas[key]);
+    sheet.getRange(first, empColIndex[key], n, 1).setFormulas(formulas);
+  });
+
+  const empFormulaCols = [3, 4, 5, 7, 9, 11, 13, 14];
+  empFormulaCols.forEach(c => markFormula(sheet.getRange(first, c, n, 1)));
+  protectFormula(sheet.getRange(first, 3, n, 3), 'שדות מחושבים - עלות מעסיק');
+  protectFormula(sheet.getRange(first, 7, n, 1), 'שדה מחושב - הבראה חודשית');
+  protectFormula(sheet.getRange(first, 9, n, 1), 'שדה מחושב - עלות כוללת');
+  protectFormula(sheet.getRange(first, 11, n, 1), 'שדה מחושב - עלות לשעה');
+  protectFormula(sheet.getRange(first, 13, n, 2), 'שדות מחושבים - תעריף ורווח');
+
+  setCurrency(sheet.getRange(first, 2, n, 8));
+  setCurrency(sheet.getRange(first, 11, n, 1));
+  setPercent(sheet.getRange(first, 12, n, 1));
+  setCurrency(sheet.getRange(first, 13, n, 2));
+
+  const totalRow = E.totalRow;
+  sheet.getRange(totalRow, 1).setValue('סה"כ עלות מעסיק חודשית - כל העובדים').setFontWeight('bold');
+  sheet.getRange(totalRow, 9).setFormula(`=SUM(I${first}:I${last})`);
+  sheet.getRange(totalRow, 1, 1, 14).setBackground(CONFIG.colors.totalBg).setFontWeight('bold');
+  setCurrency(sheet.getRange(totalRow, 9, 1, 1));
+  protectFormula(sheet.getRange(totalRow, 9, 1, 1), 'סה"כ - שדה מחושב');
+  sheet
+    .getRange('A' + totalRow)
+    .setNote(
+      'הטאב הזה הוא מחשבון תמחור בלבד - הוא לא מוזן אוטומטית לשום מקום אחר. כדי שעלות העובדים תיכנס לתחזית התזרים ולנקודת האיזון הכוללת של העסק (טאב 6), הוסיפו לכל עובד שורה מתאימה בטאב 4 (הוצאות קבועות) עם הסכום מעמודה I כאן ("עלות מעסיק חודשית כוללת"), תדירות=1, סוג=קבועה, כולל מע"מ=לא.'
+    );
+
+  sheet.getRange(first, 1, n, headers.length).setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
+
+  sheet.setColumnWidths(1, 1, 170);
+  sheet.setColumnWidths(2, 1, 150);
+  sheet.setColumnWidths(3, 3, 170);
+  sheet.setColumnWidths(6, 1, 140);
+  sheet.setColumnWidths(7, 1, 180);
+  sheet.setColumnWidths(8, 1, 190);
+  sheet.setColumnWidths(9, 1, 190);
+  sheet.setColumnWidths(10, 1, 190);
+  sheet.setColumnWidths(11, 1, 160);
+  sheet.setColumnWidths(12, 1, 190);
+  sheet.setColumnWidths(13, 1, 190);
+  sheet.setColumnWidths(14, 1, 160);
 }
 
 // ============================================================================
