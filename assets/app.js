@@ -20,6 +20,11 @@ const CAT_LABELS = {
   gardenset:'פינת ישיבה/אוכל לחצר', umbrella:'מטריית שמש', accessory:'אביזר', set:'סט שולחן וכיסאות'
 };
 
+const CAT_COLORS = {
+  chair:'#c2703f', bar:'#2f7d74', office:'#3d5a8a', table:'#b9862c',
+  gardenset:'#5b7a45', umbrella:'#3f8fb0', accessory:'#93507a', set:'#b9862c'
+};
+
 function matchesNav(p, navKey){
   if(navKey==='all') return true;
   if(navKey==='table_group') return p.category==='table' || p.category==='set';
@@ -65,8 +70,9 @@ function render(){
 function cardHTML(p){
   const cols = p.colors.slice(0,6);
   const extra = p.colors.length>6 ? `<span class="swatch-more">+${p.colors.length-6}</span>` : '';
+  const catColor = CAT_COLORS[p.category] || '';
   return `
-  <div class="card" data-id="${p.id}">
+  <div class="card" data-id="${p.id}" style="--cat-color:${catColor}">
     <div class="thumb">
       <span class="badge-cat">${CAT_LABELS[p.category]||''}</span>
       <img src="${p.img}" alt="${p.name}" loading="lazy">
