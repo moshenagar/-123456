@@ -1151,7 +1151,8 @@ function buildEmployeesTab(ss) {
   sheet
     .getRange('A' + totalRow)
     .setNote(
-      'הטאב הזה הוא מחשבון תמחור בלבד - הוא לא מוזן אוטומטית לשום מקום אחר. כדי שעלות העובדים תיכנס לתחזית התזרים ולנקודת האיזון הכוללת של העסק (טאב 6), הוסיפו לכל עובד שורה מתאימה בטאב 4 (הוצאות קבועות) עם הסכום מעמודה I כאן ("עלות מעסיק חודשית כוללת"), תדירות=1, סוג=קבועה, כולל מע"מ=לא.'
+      'הסכום הזה נכנס אוטומטית לחישוב התקורה הכוללת בטאב 6 (נקודת איזון) - אין צורך להעתיק אותו לשום מקום כדי לדעת כמה כסף העסק צריך להכניס בחודש. ' +
+        'אבל כדי שתשלומי השכר יופיעו בתאריך הנכון בתחזית התזרים היומית (טאב 7), עדיין צריך להוסיף לכל עובד שורה בטאב 4 עם יום/תאריך התשלום בפועל, תדירות=1, סוג=קבועה, כולל מע"מ=לא - זה משפיע רק על התזמון היומי, לא על נקודת האיזון.'
     );
 
   sheet.getRange(first, 1, n, headers.length).setBorder(true, true, true, true, true, true, '#CCCCCC', SpreadsheetApp.BorderStyle.SOLID);
@@ -1269,17 +1270,26 @@ function buildPricingTab(ss) {
   const P = getPricingLayout();
 
   styleTitleRow(sheet, `A${P.titleRow}:R${P.titleRow}`, 'תמחור ונקודת איזון - כלכלת יחידה (Unit Economics)');
-  sheet.getRange(`A${P.overheadRow}`).setValue('סה"כ תקורה חודשית קבועה (שווה-ערך חודשי, שורות "קבועה" בלבד מטאב 4)');
+  sheet
+    .getRange(`A${P.overheadRow}`)
+    .setValue('סה"כ תקורה חודשית קבועה (שורות "קבועה" מטאב 4 חוץ מ"שכר עבודה", שווה-ערך חודשי, + עלות כל העובדים מטאב העובדים)');
   const fixedLastRow = 1 + CONFIG.rows.fixedData;
+  const employeesTotalRow = getEmployeesLayout().totalRow;
   sheet
     .getRange(`B${P.overheadRow}`)
     .setFormula(
-      `=SUMPRODUCT(('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLastRow}="קבועה")*'${CONFIG.sheets.fixed}'!$H$2:$H$${fixedLastRow}/MAX('${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLastRow},1))`
+      `=SUMPRODUCT(('${CONFIG.sheets.fixed}'!$B$2:$B$${fixedLastRow}="קבועה")*('${CONFIG.sheets.fixed}'!$A$2:$A$${fixedLastRow}<>"שכר עבודה")*'${CONFIG.sheets.fixed}'!$H$2:$H$${fixedLastRow}/MAX('${CONFIG.sheets.fixed}'!$D$2:$D$${fixedLastRow},1))+'${CONFIG.sheets.employees}'!I${employeesTotalRow}`
     );
   setCurrency(sheet.getRange(`B${P.overheadRow}`));
   sheet.getRange(`B${P.overheadRow}`).setFontWeight('bold').setFontSize(12);
   markFormula(sheet.getRange(`A${P.overheadRow}:B${P.overheadRow}`));
-  protectFormula(sheet.getRange(`B${P.overheadRow}`), 'תקורה חודשית - שדה מחושב מטאב 4');
+  protectFormula(sheet.getRange(`B${P.overheadRow}`), 'תקורה חודשית - שדה מחושב מטאב 4 + טאב עובדים');
+  sheet
+    .getRange(`A${P.overheadRow}`)
+    .setNote(
+      'הסכום הזה כולל אוטומטית גם את "סה"כ עלות מעסיק חודשית" מטאב העובדים - אין צורך להעתיק את זה ידנית לטאב 4. ' +
+        'כדי שתשלומי השכר יופיעו בתאריך הנכון בתחזית התזרים היומית (טאב 7), עדיין צריך להוסיף בטאב 4 שורה לכל עובד עם יום/תאריך התשלום בפועל - אבל חשוב לבחור בקטגוריה "שכר עבודה" בדיוק, כדי שהמערכת תדע לא לספור את הסכום פעמיים בחישוב נקודת האיזון כאן (השורה עדיין תיכנס נכון לתזרים היומי בטאב 7, רק לא תיכנס בכפילות לתקורה כאן).'
+    );
 
   // ---- Company-wide break-even: how much revenue justifies keeping the business open ----
   styleSectionRow(sheet, `A${P.summaryTitleRow}:D${P.summaryTitleRow}`, 'נקודת איזון כוללת לעסק (כל המוצרים יחד)');
